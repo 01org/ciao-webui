@@ -37,15 +37,15 @@ app.use(session({
     saveUninitialized: false
 }));
 
-// uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 //app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'vendor')));
+app.use(express.static(path.join(__dirname, 'build')));
 
-// TODO:
 // "components" view is for development & debugging purposes only.
 // don't forget to remove
 // In addition, main pages are considered to be tenant and admin.
@@ -67,10 +67,6 @@ var urls_config = {
 // WARNING: Api functionality, urls, and available data might change until
 // requested endpoints/services are fully implemented.
 global.URLS_CONFIG = urls_config;
-global.API = {
-    get_instances:'/getInstances',
-    get_node_stats:'/getNodeStats'
-};
 
 app.use(urls_config.index, index);
 app.use(urls_config.components, components);

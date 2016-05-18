@@ -14,11 +14,6 @@ npm install
 npm install --global babel-cli
 npm install --global browserify
 
-# Create javascript directory
-mkdir public/javascripts
-# Create library working directory
-mkdir public/javascripts/library
-
 #Build react + jsx code and put in build directory
 npm run babel-react &
 
@@ -62,11 +57,8 @@ cp -r tempDownloads/fonts public/stylesheets/
 rm -rf tempDownloads
 
 # Relocating bootstrap files
-cp -r node_modules/bootstrap/dist/fonts/* public/stylesheets/fonts
-cp -r node_modules/bootstrap/dist/css/bootstrap.min.css public/stylesheets
-
-# Copy datamanager.js to public directory
-cp build/data/dataManager.js public/javascripts/datamanager.js
+cp -r node_modules/bootstrap/dist/fonts/* vendor/stylesheets/fonts
+cp -r node_modules/bootstrap/dist/css/bootstrap.min.css vendor/stylesheets
 
 # Verify the environment to define the template
 if [ $env == "default" ]
@@ -106,7 +98,3 @@ npm run build-machine
 npm run build-network
 npm run build-subnet
 npm run build-group
-
-
-# Start the application
-npm start

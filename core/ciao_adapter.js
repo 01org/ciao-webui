@@ -168,7 +168,11 @@ var getConfig = function () {
     var fs = require('fs');
     var config = JSON.parse(fs.readFileSync(file, 'utf8'));
     //GLOBAL overwrite
-    var result =  config[process.env.NODE_ENV].controller;
+    var result;
+    if (config[process.env.NODE_ENV])
+        result = config[process.env.NODE_ENV].controller;
+    else
+        result = {};
     if (global.CONTROLLER_ADDR)
         result.host = global.CONTROLLER_ADDR;
     if (global.CONTROLLER_PORT)

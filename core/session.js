@@ -47,7 +47,11 @@
              global.CONFIG_FILE:__dirname +"/../config/ciao_config.json";
          var fs = require('fs');
          var config = JSON.parse(fs.readFileSync(file, 'utf8'));
-         var result = config[process.env.NODE_ENV].keystone;
+         var result;
+         if (config[process.env.NODE_ENV])
+             result = config[process.env.NODE_ENV].keystone;
+         else
+             result = {uri: "/v3/auth/tokens"}; //default URI v3 keystone
          // Global variable overwrite
          if (global.KEYSTONE_ADDR)
              result.host = global.KEYSTONE_ADDR;

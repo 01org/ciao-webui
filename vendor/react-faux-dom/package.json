@@ -1,0 +1,96 @@
+{
+  "_args": [
+    [
+      "react-faux-dom@2.4.0",
+      "/home/jvillalo/development/otc_cloud_ux-sn-ui"
+    ]
+  ],
+  "_from": "react-faux-dom@2.4.0",
+  "_id": "react-faux-dom@2.4.0",
+  "_inCache": true,
+  "_location": "/react-faux-dom",
+  "_nodeVersion": "5.7.0",
+  "_npmOperationalInternal": {
+    "host": "packages-9-west.internal.npmjs.com",
+    "tmp": "tmp/react-faux-dom-2.4.0.tgz_1456664290543_0.7203546341042966"
+  },
+  "_npmUser": {
+    "email": "olliec87@gmail.com",
+    "name": "olical"
+  },
+  "_npmVersion": "3.7.5",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "react-faux-dom",
+    "raw": "react-faux-dom@2.4.0",
+    "rawSpec": "2.4.0",
+    "scope": null,
+    "spec": "2.4.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/react-faux-dom/-/react-faux-dom-2.4.0.tgz",
+  "_shasum": "889022c4dc57189ba5d46253a78e095ca733c310",
+  "_shrinkwrap": null,
+  "_spec": "react-faux-dom@2.4.0",
+  "_where": "/home/jvillalo/development/otc_cloud_ux-sn-ui",
+  "author": {
+    "email": "olliec87@gmail.com",
+    "name": "Oliver Caldwell",
+    "url": "http://oli.me.uk/"
+  },
+  "bugs": {
+    "url": "https://github.com/Olical/react-faux-dom/issues"
+  },
+  "dependencies": {
+    "query-selector": "^1.0.9",
+    "style-attr": "^1.0.1"
+  },
+  "description": "DOM like data structure to be mutated by D3 et al, then rendered to React elements",
+  "devDependencies": {
+    "d3": "^3.5.16",
+    "faucet": "0.0.1",
+    "nodemon": "^1.9.1",
+    "react": "^0.14.7",
+    "sinon": "^1.17.3",
+    "standard": "^6.0.7",
+    "tape": "^4.4.0"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "889022c4dc57189ba5d46253a78e095ca733c310",
+    "tarball": "https://registry.npmjs.org/react-faux-dom/-/react-faux-dom-2.4.0.tgz"
+  },
+  "gitHead": "c0379fc468b828deee6833df67efb2a3899aa60c",
+  "homepage": "https://github.com/Olical/react-faux-dom#readme",
+  "installable": true,
+  "keywords": [
+    "d3",
+    "dom",
+    "react",
+    "virtual"
+  ],
+  "license": "Unlicense",
+  "main": "lib/ReactFauxDOM.js",
+  "maintainers": [
+    {
+      "name": "olical",
+      "email": "olliec87@gmail.com"
+    }
+  ],
+  "name": "react-faux-dom",
+  "optionalDependencies": {},
+  "peerDependencies": {
+    "react": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Olical/react-faux-dom.git"
+  },
+  "scripts": {
+    "test": "standard && tape './test/**/*.js' | faucet"
+  },
+  "version": "2.4.0"
+}
