@@ -29,10 +29,10 @@
     "jquery-ui": "^1.10.5",
     "morgan": "~1.6.1",
     "node-uuid": "^1.4.7",
-    "react": "^0.14.6",
-    "react-bootstrap": "^0.28.3",
-    "react-dom": "^0.14.6",
-    "react-faux-dom": "^2.1.1",
+    "react": "^0.14.8",
+    "react-bootstrap": "^0.28.5",
+    "react-dom": "^0.14.8",
+    "react-faux-dom": "^2.4.0",
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {

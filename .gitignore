@@ -1,7 +1,6 @@
 node_modules
 npm-debug.log
 public/javascripts/*
-build
 config/identity_config.json
 config/ciao_config.json
 public/stylesheets/*
