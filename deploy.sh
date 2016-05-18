@@ -26,7 +26,7 @@ jsEnd="'></script>"
 # * insert them after tittle html tag *
 match="</title>"
 # * "files" *
-bootstrap="$cssStart/bootstrap/dist/bootstrap.min.css$cssEnd"
+bootstrap="$cssStart/bootstrap/dist/css/bootstrap.min.css$cssEnd"
 framework="$cssStart/stylesheets/framework.css$cssEnd"
 d3="$cssStart/stylesheets/d3Framework.css$cssEnd"
 jquery="$jsStart/jquery/jquery.js$jsEnd"
@@ -36,3 +36,5 @@ loadDatamanager="<script type='text/javascript'>window.datamanager.loadData((<%-
 # Delete .bak (this is just for mac)
 # Replace \\ for \n (this is just for mac)
 sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager~" views/$file
+
+npm start -- "$@"
