@@ -25,6 +25,35 @@ var nodes = React.createClass({
         return true;
     },
 
+    onChangePage: function (lastRecord) {
+        this.setState({ pagination: lastRecord });
+    },
+    selectAll: function (status,action) {
+
+        console.log('status', status);
+        console.log('action', action);
+        return function () {
+            var actionString = "";
+            switch (action) {
+                case "Ready":
+                    actionString = "READY";
+                    break;
+                case "Full":
+                    actionString = "FULL";
+                    break;
+                case "Maintenance":
+                    actionString = "MAINTENANCE";
+                    break;
+                case "Offline":
+                    actionString = "OFFLINE";
+                    break;
+            }
+            this.actionAllInstances(status,actionString);
+            var s = this.state;
+            s.selectAll = true;
+            this.setState(s);
+        }.bind(this);
+    },
     getActions: function(){
         return [
             {
@@ -121,17 +150,20 @@ var nodes = React.createClass({
             url:'/admin/machine/'
         };
 
-        return (
-            <CustomCatalogue
-                data={this.props.data}
-                count = {this.props.count ? this.props.count:10}
-                limit = {this.state.limit}
-                link={link}
-                columns={columns}
-                actions={this.getActions()}
-                dropDownActions={this.getDropdownActions()}
-                searchFields={this.getSearchfields()}
-            />);
+        if (this.props.data) return React.createElement(CustomCatalogue, {
+            data: this.props.data,
+            count: this.props.count,
+            limit: this.state.limit,
+            link: link,
+            columns: columns,
+            actions: this.getActions(),
+            dropDownActions: this.getDropdownActions(),
+            searchFields: this.getSearchfields(),
+            onChangePage: this.onChangePage,
+            selectAll: this.selectAll,
+            id:'id',
+            ref: 'catalogue'
+        });else return React.createElement('div', null);
     }
 });
 

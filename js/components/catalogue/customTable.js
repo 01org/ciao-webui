@@ -22,7 +22,7 @@ var customTable = React.createClass({
 
         if (Object.keys(selected).length == 1) {
 
-            if (selected[0].id == row.id) {
+            if (selected[0][this.props.id] == row[this.props.id]) {
                 newSelected = [];
             } else {
                 newSelected.push(row);

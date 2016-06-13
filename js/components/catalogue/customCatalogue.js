@@ -269,7 +269,7 @@ var catalogue = React.createClass({
                 default:
                     f = function (row, selectedRows) {
                         var entry = selectedRows.find(function (element) {
-                            return element.id == row.id;
+                            return element[config.id] == row[config.id];
                         });
                         return entry;
                     };
@@ -284,6 +284,7 @@ var catalogue = React.createClass({
             onSelectRow: this.selectInstance,
             selectedRows: this.state.selectedInstance,
             isChecked: isChecked,
+            id:config.id,
             onChangePage: this.setActualItems,
             link: config.link ? config.link : false
         };
