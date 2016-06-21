@@ -60,7 +60,26 @@ var nodes = React.createClass({
             }
         ];
     },
-
+    selectAll: function (status,action) {
+        return function () {
+            var actionString = "";
+            switch (action) {
+                case "Start":
+                    actionString = "os-start";
+                    break;
+                case "Stop":
+                    actionString = "os-stop";
+                    break;
+                case "Remove":
+                    actionString = "os-delete";
+                    break;
+            }
+            this.actionAllInstances(status,actionString);
+            var s = this.state;
+            s.selectAll = true;
+            this.setState(s);
+        }.bind(this);
+    },
     getSearchfields: function(){
         return  ['status', 'utilization', 'geography'];
     },
@@ -107,12 +126,17 @@ var nodes = React.createClass({
         update();
         window.setInterval(update, 2000);
     },
-
+    onChangePage: function (lastRecord) {
+        this.setState({ pagination: lastRecord });
+        //onStateChange
+        //componentShouldUpdate
+    },
     render: function() {
+
         var columns = [];
         if (this.props.data.length > 0) {
-            columns = Object.keys(this.props.data[0]).map(function(text){
-                return text.replace(/_/g, " ");
+            columns = Object.keys(this.props.data[0]).map(function (text) {
+                return text.replace('_', ' ');
             });
         }
 
@@ -121,17 +145,19 @@ var nodes = React.createClass({
             url:'/admin/machine/'
         };
 
-        return (
-            <CustomCatalogue
-                data={this.props.data}
-                count = {this.props.count ? this.props.count:10}
-                limit = {this.state.limit}
-                link={link}
-                columns={columns}
-                actions={this.getActions()}
-                dropDownActions={this.getDropdownActions()}
-                searchFields={this.getSearchfields()}
-            />);
+        if (this.props.data) return React.createElement(CustomCatalogue, {
+            data: this.props.data,
+            count: this.props.count,
+            columns: columns,
+            link:link,
+            actions: this.getActions(),
+            dropDownActions: this.getDropdownActions(),
+            searchFields: this.getSearchfields(),
+            onChangePage: this.onChangePage,
+            selectAll: this.selectAll,
+            ref: 'catalogue'
+        });else return React.createElement('div', null);
+        
     }
 });
 
