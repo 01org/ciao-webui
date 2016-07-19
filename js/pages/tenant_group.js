@@ -68,7 +68,7 @@ $('document').ready(function () {
                 {
                     "instance_id": "925ea79d",
                     "tenant_id": "68a76514-5c8e-40a8",
-                    "instance_state": "running",
+                    "instance_state": "active",
                     "workload_id": "69e84267-ed01",
                     "node_id": "4ec9b270-c48-f95ff877e252",
                     "mac_address": "73:6f:2b:59:bb:2c"
@@ -82,7 +82,7 @@ $('document').ready(function () {
                 {
                     "instance_id": "925ea79d",
                     "tenant_id": "68a76514-5c8e-40a8",
-                    "instance_state": "running",
+                    "instance_state": "active",
                     "workload_id": "69e84267-ed01",
                     "node_id": "4ec9b270-c48-f95ff877e252",
                     "mac_address": "73:6f:2b:59:bb:2c"
@@ -96,7 +96,7 @@ $('document').ready(function () {
                 {
                     "instance_id": "925ea79-9dcd-c26b729d67c9",
                     "tenant_id": "68a76514-0570a11d035b",
-                    "instance_state": "running",
+                    "instance_state": "active",
                     "workload_id": "69e842-b15f-b47de06b62e7",
                     "node_id": "4ec9b270-c488-4b59-a376-f95ff877e252",
                     "mac_address": "73:6f:2b:59:bb:2c"

@@ -574,7 +574,7 @@ ul> li> a{
 */
 .state-ready,
 .utilization-low,
-.instance_state-running{
+.instance_state-active{
     color: #2BD899;
 }
 .state-maintenance,
@@ -587,7 +587,7 @@ ul> li> a{
 .instance_state-stopped{
     color: #FF5573;
 }
- td.State-running {
+ td.State-active {
      color: #2BD899;
  }
  td.State-pending {

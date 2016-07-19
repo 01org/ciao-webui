@@ -22,7 +22,7 @@ process.on('message', function(m) {
                         // total instances and running instances
                         var ti = filteredData.length;
                         var tri = filteredData.filter((server) => {
-                            return server.status == 'running';
+                            return server.status == 'active';
                         }).length;
                         w.totalInstances = ti;
                         w.totalRunningInstances = tri;

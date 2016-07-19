@@ -48,7 +48,7 @@ var instancesTenant = React.createClass({
         var disabled = true;
         if(item.length > 0){
             var firstElement = item[0];
-            if(firstElement.instance_state != 'running'
+            if(firstElement.instance_state != 'active'
                 && firstElement.instance_state != 'starting') {
                 disabled = false;
             }
@@ -98,8 +98,8 @@ var instancesTenant = React.createClass({
         return [
             {
                 label:'All Running',
-                name:'running',
-                query:{'instance_state':'running'}
+                name:'active',
+                query:{'instance_state':'active'}
             },
             {
                 label:'All Stopped',
