@@ -108,11 +108,12 @@ var instancesHost = React.createClass({
         var disabled = true;
         if (item.length > 0) {
             var firstElement = item[0];
-            if (firstElement.State != 'running' && firstElement.State != 'starting') {
+            if (firstElement.State != 'running' && firstElement.State != 'starting'
+                && firstElement.State != 'active') {
                 disabled = false;
             }
         }
-        return false;
+        return disabled;
     },
 
     disabledStopButton: function (item) {

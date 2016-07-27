@@ -20,15 +20,18 @@ var tableActionToolbar = React.createClass({
         });
     },
     render: function() {
+
         var buttons = this.props.buttonItems.map((item, i) => {
+
             var execute = this.props.allItems == true ?
                 this.props.selectAll(this.props.status,item.name) :
                 item.onClick.bind(null, this.props.selectedInstance);
 
-            //disabled={item.onDisabled(this.props.selectedInstance)}
                 return  <Button bsStyle="primary" key={i}
-                            onClick={execute}>
+                            onClick={execute}
+                            disabled={item.onDisabled(this.props.selectedInstance)}>
                             {item.name}
+
                         </Button>;
             });
 
