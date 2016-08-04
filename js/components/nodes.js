@@ -89,7 +89,26 @@ var nodes = React.createClass({
             }
         ];
     },
-
+    selectAll: function (status,action) {
+        return function () {
+            var actionString = "";
+            switch (action) {
+                case "Start":
+                    actionString = "os-start";
+                    break;
+                case "Stop":
+                    actionString = "os-stop";
+                    break;
+                case "Remove":
+                    actionString = "os-delete";
+                    break;
+            }
+            this.actionAllInstances(status,actionString);
+            var s = this.state;
+            s.selectAll = true;
+            this.setState(s);
+        }.bind(this);
+    },
     getSearchfields: function(){
         return  ['status', 'utilization', 'geography'];
     },
@@ -136,12 +155,17 @@ var nodes = React.createClass({
         update();
         window.setInterval(update, 2000);
     },
-
+    onChangePage: function (lastRecord) {
+        this.setState({ pagination: lastRecord });
+        //onStateChange
+        //componentShouldUpdate
+    },
     render: function() {
+
         var columns = [];
         if (this.props.data.length > 0) {
-            columns = Object.keys(this.props.data[0]).map(function(text){
-                return text.replace(/_/g, " ");
+            columns = Object.keys(this.props.data[0]).map(function (text) {
+                return text.replace('_', ' ');
             });
         }
 
