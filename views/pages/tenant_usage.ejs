@@ -1,29 +1,35 @@
-<div class="row">
+<div class="tenant-page">
     <!-- starts top navigation bar -->
 
     <div id="main-top-navbar" attr-user="<%= username %>"></div>
     <!-- header -->
-    <div class="row">
-      <div class="col-md-8">
-        <h6 class="frm-bold-text">
-          <%= section %>
-        </h6>
-      </div>
+    <div class="row add-margin-bottom add-margin-top">
+        <div class="col-md-8">
+            <h6 class="frm-bold-text">
+                <%= section %>
+            </h6>
+        </div>
     </div>
     <!-- ends header -->
 
     <!-- Usage summary -->
     <div class="usage-summary">
-        <h2 class="frm-bold-text add-margin-bottom">
-            Usage Summary
-        </h2>
-        <!-- Insert summary elements dynamically -->
-        <div id="usage-summary" >
+        <div class="container">
+            <h2 class="frm-bold-text add-margin-bottom">
+                Usage Summary
+            </h2>
+            <!-- Insert summary elements dynamically -->
+            <div id="usage-summary" >
+            </div>
         </div>
     </div>
     <!-- ends Usage summary -->
 
-    <!-- Linechart - Memory Usage sample -->
-    <div id="usage-details"></div>
+    <!-- Linechart - Memory Usage summary -->
+    <div id="memory-usage-details"></div>
+    <!-- Linechart - Processor Usage summary -->
+    <div id="processor-usage-details"></div>
+    <!-- Linechart - Disk Usage summary -->
+    <div id="disk-usage-details"></div>
 
 </div>

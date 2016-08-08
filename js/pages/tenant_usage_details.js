@@ -6,84 +6,81 @@ var LineChartDetail = require('../components/lineChartDetail.js');
 
 jQuery('document').ready(function () {
 
-    var getUnitString = function (value) {
+    // Navbar configuration
+    var nprops = { logoutUrl: datamanager.data.navbar.logoutUrl};
+    nprops.tenants = datamanager.data.tenants;
+    nprops.activeTenant = datamanager.data.activeTenant;
+    nprops.back = {
+        label:'< Back to [Overview]',
+        url: '/tenant',
+    }
 
-        if (value == null)
-            return function (arg) {return arg;};
+    nprops.username = datamanager.data.username;
+    var n = React.createElement(navbar, nprops);
+    ReactDOM.render(n, document.getElementById("main-top-navbar"));
 
-        return value < 1500 ?
-            value + "GB" :
-            (value / 1000) + "TB";
-    };
-    // dummy data
-    var usageSummaryData = {
-            elements:[
-                {
-                    value: 8,
-                    quota: 8,
-                    name: "Instances",
-                    unit: getUnitString(null)
-                },
-                {
-                    value: 10,
-                    quota: 25,
-                    name: "Memory",
-                    unit: getUnitString
-                },
-                {
-                    value: 12,
-                    quota: 20,
-                    name: "CPUs",
-                    unit: getUnitString(null)
-                },
-                {
-                    value: 120,
-                    quota: 1700,
-                    name: "Disk",
-                    unit: getUnitString
-                },
-                {
-                    value: 12,
-                    quota: 17,
-                    name: "CustomTag",
-                    unit: getUnitString(null)
-                }
-            ]
-        };
-
+    // Usage Summary
     datamanager.onDataSourceSet('usage-summary', function (sourceData) {
+        sourceData.source = "/quotas";
+        sourceData.history = false;
         ReactDOM.render(<UsageSummary {...sourceData}/>,
             document.getElementById('usage-summary'));
     });
 
     //set data sources
-    datamanager.setDataSource('usage-summary', usageSummaryData);
+    datamanager.setDataSource('usage-summary', {data:[]});
 
-    //sample linechart render
+/* ----------------------- New features ------------------------ */
+    // setting initial dates
+    var startDate = new Date();
+    var endDate = new Date();
 
-    var d1 = new Date();
+    startDate.setHours(0,0,0,0);
+    startDate.setMonth(startDate.getMonth() -3);
+    endDate.setDate(startDate.getDate());
 
-    var d2 = new Date();
-    d2.setDate(d1.getDate() -2);
-
-    var d3 = new Date();
-    d3.setDate(d1.getDate() -4);
-
-    var lcdata = {
-        data: [{id: 1, x:d1, y:3},
-               {id: 2, x:d2, y:4},
-               {id: 3, x:d3, y:1}],
-        title: "Memory usage"
+    // default data
+    var usageData = {
+        data: [{}]
     };
-    lcdata.data.forEach((d)=> console.log(d.x));
 
-    datamanager.onDataSourceSet('line-chart1', function (sourceData) {
+    /* Memory Usage */
+    datamanager.onDataSourceSet('memory-usage-summary', function (sourceData) {
+        sourceData.source = "/resources";
+        sourceData.start_date = startDate.toISOString();
+        sourceData.end_date = endDate.toISOString();
+        sourceData.title = "Memory usage";
         ReactDOM.render(<LineChartDetail {...sourceData}/>,
-            document.getElementById("usage-details"));
+            document.getElementById('memory-usage-details'));
     });
-    datamanager.setDataSource('line-chart1', lcdata);
 
-    var n = React.createElement(navbar, datamanager.data.navbar);
-    ReactDOM.render(n, document.getElementById("main-top-navbar"));
+    //set data sources
+    datamanager.setDataSource('memory-usage-summary', usageData);
+
+    /* Processor Usage */
+    datamanager.onDataSourceSet('processor-usage-summary', function (sourceData) {
+        sourceData.source = "/resources";
+        sourceData.start_date = startDate.toISOString();
+        sourceData.end_date = endDate.toISOString();
+        sourceData.title = "Processor usage";
+        ReactDOM.render(<LineChartDetail {...sourceData}/>,
+            document.getElementById('processor-usage-details'));
+    });
+
+    //set data sources
+    datamanager.setDataSource('processor-usage-summary', usageData);
+
+    /* Disk Usage */
+    datamanager.onDataSourceSet('disk-usage-summary', function (sourceData) {
+        sourceData.source = "/resources";
+        sourceData.start_date = startDate.toISOString();
+        sourceData.end_date = endDate.toISOString();
+        sourceData.title = "Disk usage";
+        ReactDOM.render(<LineChartDetail {...sourceData}/>,
+            document.getElementById('disk-usage-details'));
+    });
+
+    //set data sources
+    datamanager.setDataSource('disk-usage-summary', usageData);
 
 });

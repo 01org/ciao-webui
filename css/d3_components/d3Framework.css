@@ -1,14 +1,14 @@
 /* lineChart component */
 .line {
     fill: none;
-    stroke: steelblue;
+    stroke: #00aeef;
     stroke-width: 1.5px;
 }
 
 .line-chart-time-control {
     text-align: center;
     padding-top: 5px;
-    padding-left
+    padding-left:25px;
 }
 
 .arc text {
@@ -30,4 +30,11 @@
 .no-padding {
     padding-right: 0px!important;
     padding-left: 0px!important;
+}
+
+/* Filling area on line chart */
+.area {
+    fill: #00aeef;
+    opacity: 0.15;
+    stroke-width: 0;
 }

@@ -2,10 +2,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var d3LineChartDetail = require("../d3_components/d3LineChartDetail.js");
 var dom = require("react-faux-dom");
+//var $ = require('jquery');
 
 var lineChartDetail = React.createClass({
 
-    datepicker: {},
     getInitialState: function() {
         // Default selection is the current day
         var now = new Date();
@@ -15,7 +15,6 @@ var lineChartDetail = React.createClass({
         today_00.setMinutes(0);
         today_00.setHours(0);
 
-
         return {
             d3node: null,
             timeFrom:today_00,
@@ -24,13 +23,11 @@ var lineChartDetail = React.createClass({
     },
 
     getDefaultProps: function() {
-
-        // timeframe: measured in days. 1 = 1 day
-
         return {
             width: 300,
             height: 350,
-            timeframe: 1
+            timeframe: 1,
+            refresh: 3500
         };
     },
 
@@ -38,95 +35,97 @@ var lineChartDetail = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState) {
-        $(".lc-datepicker").datepicker({
-            onSelect: this.updateTimeFrame
-        });
     },
 
     lineChart: null,
 
     componentDidMount: function() {
-        //set up Datepicker widget
-        $(".lc-datepicker").datepicker({
-            onSelect: this.updateTimeFrame
-        });
-
-        var n = dom.createElement('svg');
-        var bundle = {props: this.props};
-
-        if (this._dcontainer) {
-            bundle.dimensions = {};
-            if (this._dcontainer.offsetWidth > 50)
-                bundle.dimensions.width = this._dcontainer.offsetWidth;
-            if (this._dcontainer.offsetHeight > 50)
-                bundle.dimensions.height = this._dcontainer.offsetHeight;
-        }
-
-        this.lineChart = d3LineChartDetail.create(n, bundle, this.state);
-
-        this.setState({d3node: this.lineChart.render()});
+        // Call update function
+        this.drawingChart();
     },
 
-    updateTimeFrame: function (dateObj) {
+    drawingChart: function () {
         var state = {};
 
-        state.timeFrom = new Date(this.datepicker.from.value);
-        state.timeTo = new Date(this.datepicker.to.value);
-        //time to goes to the end of the day
-        state.timeTo.setMinutes(1439);
-        //update state only if date is valid
-        if (!isNaN(state.timeFrom.getTime()) &&
-            !isNaN(state.timeTo.getTime())) {
+        var callSource = function () {
+            /*if (this.state.updating == true)
+                return;
+            this.setState({updating: true});*/
+
+            var n = dom.createElement('svg');
+            var bundle = {props: this.props};
+            if (this._dcontainer) {
+                bundle.dimensions = {};
+
+                if (this._dcontainer.offsetWidth > 50)
+                    bundle.dimensions.width = this._dcontainer.offsetWidth;
+                    bundle.dimensions.height = this.props.height;
+            }
+
+            this.lineChart = d3LineChartDetail.create(n, bundle, this.state);
+            this.setState({d3node: this.lineChart.render()});
+
+            var url;
+            var memoryUsageData = [];
+
+            if (!datamanager.data.activeTenant){
+                // admin
+            } else {
+                // tenant
+                url = "/data/"+datamanager.data.activeTenant.id+
+                    this.props.source+"?start_date="+this.props.start_date+
+                    "&end_date="+this.props.end_date;
+            }
+            $.get({
+                url:url})
+                .done(function (data) {
+                    if (data) {
+                        state.timeFrom = new Date(data.from);
+                        state.timeTo = new Date(data.to);
+
+                        if (this.props.title === "Memory usage") {
+                            datamanager.setDataSource('memory-usage-summary',{
+                                source: this.props.source,
+                                start_date: this.props.start_date,
+                                end_date: this.props.end_date,
+                                data:data.memoryUsageData
+                            });
+                        } else if (this.props.title === "Processor usage") {
+                            datamanager.setDataSource('processor-usage-summary',{
+                                source: this.props.source,
+                                start_date: this.props.start_date,
+                                end_date: this.props.end_date,
+                                data:data.cpusUsageData
+                            });
+                        } else if (this.props.title === "Disk usage") {
+                            datamanager.setDataSource('disk-usage-summary',{
+                                source: this.props.source,
+                                start_date: this.props.start_date,
+                                end_date: this.props.end_date,
+                                data:data.diskUsageData
+                            });
+                        } else {
+                            console.log("no data to show");
+                        }
+                    }
+                }.bind(this))
+                .fail(function (err) {
+                    datamanager.setDataSource('memory-usage-summary',{
+                        source: this.props.source,
+                        start_date: this.props.start_date,
+                        end_date: this.props.end_date
+                    });
+                }.bind(this));
+
+        }.bind(this);
+        callSource();
+
+        window.setInterval(function () {
+            callSource();
             this.lineChart.setState(state);
             state.d3node = this.lineChart.render();
             this.setState(state);
-        }
-    },
-
-    getTimeFrameControl: function () {
-
-        return (
-            <div className="line-chart-time-control">
-                <select className="btn frm-btn-secondary col-md-2">
-                    <option>Today</option>
-                    <option>Last 7 Days</option>
-                </select>
-                <div className="line-chart-date-form
-                                col-md-6 pull-right">
-                    <div className="col-md-5 ">
-                        <div className="glyphicon input-group">
-                            <input
-                                ref={(ref) => this.datepicker.from = ref}
-                                placeholder="MM/DD/YY"
-                                className="form-control lc-datepicker"
-                                type="text"
-                                onChange={this.updateTimeFrame}
-                                value={this.state.timeFrom
-                                    .toLocaleString().split(',')[0]}
-                            />
-                            <span className=
-                                  "input-group-addon glyphicon-calendar"/>
-                        </div>
-                    </div>
-                    <span className="col-md-2">to</span>
-                    <div className="col-md-5 ">
-                        <div className="glyphicon input-group">
-                            <input
-                                ref={(ref) => this.datepicker.to = ref}
-                                placeholder="MM/DD/YY"
-                                className="form-control lc-datepicker"
-                                type="text"
-                                onChange={this.updateTimeFrame}
-                                value={this.state.timeTo
-                                    .toLocaleString().split(',')[0]}
-                            />
-                            <span className=
-                                  "input-group-addon glyphicon-calendar" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+        }.bind(this), Number(this.props.refresh));
     },
 
     render: function() {
@@ -138,7 +137,6 @@ var lineChartDetail = React.createClass({
                           <div className="frm-panel-heading frm-panel-standar">
                           </div>
                           <div className="frm-panel">
-                            {this.getTimeFrameControl()}
                             <div
                                ref={(ref) => this._dcontainer = ref }
                               className="d3-container text-center">

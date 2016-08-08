@@ -92,7 +92,7 @@ router.get('/usage', validatePermissions, function (req, res, next) {
 
     usageConfig.data.username = req.session.username;
     usageConfig.data.tenants = req.session.tenants;
-    config.data.activeTenant = req.session.activeTenant;
+    usageConfig.data.activeTenant = req.session.activeTenant;
     usageConfig.data.navbar = {
         username: req.session.username,
         tenants: req.session.tenants,

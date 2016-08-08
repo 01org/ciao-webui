@@ -71,18 +71,47 @@ router.get('/flavors/:flavor/servers/detail', function(req, res, next) {
 
 router.get('/:tenant/resources', function(req, res, next) {
     tokenManager.onSuccess((t) => {
-        var start = req.query.start;
-        var end = req.query.end;
-        var query = "?start="+start+"&end="+end;
+        var start = req.query.start_date;
+        var end = req.query.end_date;
+        var query = "?start_date="+start+"&end_date="+end;
         var uri = "/v2.1/" + req.params.tenant + "/resources" + query;
+        var usageSummary = {
+            "memoryUsageData":[],
+            "cpusUsageData":[],
+            "diskUsageData":[],
+            "from":"",
+            "to":""
+        };
+
         var data = adapter.get(
             uri,req.session.token,
-            () => res.send(data.json));
+            () => {
+                if (data.json) {
+                    usageSummary.from = data.json.usage[0].timestamp;
+                    usageSummary.to = data.json.usage[data.json.usage.length-1].timestamp;
+
+                    data.json.usage.forEach((rowData) => {
+                        usageSummary.memoryUsageData.push({
+                            dateValue : new Date(rowData.timestamp),
+                            usageValue: rowData.ram_usage
+                        });
+                        usageSummary.cpusUsageData.push({
+                            dateValue : new Date(rowData.timestamp),
+                            usageValue: rowData.cpus_usage
+                        });
+                        usageSummary.diskUsageData.push({
+                            dateValue : new Date(rowData.timestamp),
+                            usageValue: rowData.disk_usage
+                        });
+                    });
+                }
+                res.send(usageSummary);
+            });
+
     })
-        .onError(() => {
-            res.send({});
-        }
-                )
+        .onError((data) => {
+            res.send({data});
+        })
         .validate(req, res);
 });
 

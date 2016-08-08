@@ -109,40 +109,49 @@ var usageSummary = React.createClass({
     render: function() {
         var dynamicWidth = Math.round(12 / this.props.data.length);
         var elements = [];
+        var historyButton;
         var columnGrid, reference;
 
         if (this.props.data)  {
             if(this.props.data.length > 3) {
                 // tenant
                 columnGrid = "col-xs-3 col-sm-3";
-                reference = "tenant/underConstruction";
+                reference = "tenant/usage";
             } else {
                 // admin
                 columnGrid = "col-xs-4 col-sm-4";
                 reference = "admin/underConstruction"
             }
 
-            this.props.data.forEach(
-                (props) => {
-                    elements.push(
-                        <div key={props.name} className={columnGrid}>
-                            <ElementSummary {...props}/>
-                        </div>
-                    );
-                }
-            );
+            if(this.props.data.length !== undefined) {
+                this.props.data.forEach(
+                    (props) => {
+                        elements.push(
+                            <div key={props.name} className={columnGrid}>
+                                <ElementSummary {...props}/>
+                            </div>
+                        );
+                    }
+                );
+            }
+        }
+
+        if (this.props.history !== false) {
+            //View usage Histroy button
+            historyButton = <div className="col-xs-12 frm-body-h6">
+                <Button bsStyle={null}
+                    className="btn frm-btn-secondary pull-right"
+                    href={reference}>
+                    View Usage History
+                </Button>
+            </div>
         }
 
         return (
             <div className="row">
                 {elements}
-                <div className="col-xs-12 frm-body-h6">
-                    <Button bsStyle={null}
-                        className="btn frm-btn-secondary pull-right"
-                        href={reference}>
-                        View Usage History
-                    </Button>
-                </div>
+                {historyButton}
+
             </div>
         );
     }
