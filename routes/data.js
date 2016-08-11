@@ -139,25 +139,25 @@ router.get('/:tenant/quotas', function (req, res, next) {
                     {
                         value: data.json.instances_usage,
                         quota: validateQuota(data.json.instances_limit),
-                        name: "Instances",
+                        name: "Total Instances",
                         unit: ""
                     },
                     {
                         value: data.json.ram_usage,
                         quota: validateQuota(data.json.ram_limit),
-                        name: "Memory",
+                        name: "Memory Usage",
                         unit: ""
                     },
                     {
                         value: data.json.cpus_usage,
-                        name: "Processors",
+                        name: "Processor Load Average",
                         quota: validateQuota(data.json.cpus_limit),
                         unit: ""
                     },
                     {
                         value: data.json.disk_usage,
                         quota: validateQuota(data.json.disk_limit),
-                        name: "Disk",
+                        name: "Disk Usage",
                         unit: ""
                     }
                 ];

@@ -37,8 +37,8 @@ cd ..
 # Create stylesheets directory
 mkdir public/stylesheets
 # Copy all the css content to the public path
-cp -r css/css_framework/* build/stylesheets
-cp css/d3_components/d3Framework.css build/stylesheets
+cp -r css/css_framework/* public/stylesheets
+cp css/d3_components/d3Framework.css public/stylesheets
 cp -r tempDownloads/fonts public/stylesheets/
 
 # removing temporal files

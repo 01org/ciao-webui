@@ -85,12 +85,12 @@ var addInstances = React.createClass({
 
     render: function () {
         return (<div className="pull-right">
-                <h6>
+                <h4>
                     <Button bsStyle={null} className="btn frm-btn-primary"
                         onClick={this.confirmAddInstances}>
                         Add Instances
                     </Button>
-                 </h6>
+                 </h4>
                 {this.renderModal()}
                 </div>);
     },

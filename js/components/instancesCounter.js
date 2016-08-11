@@ -1,6 +1,7 @@
 // React js component
 var React = require('react');
 var reactBootstrap = require('react-bootstrap');
+var Button = reactBootstrap.Button;
 
 var instancesCounter = React.createClass({
 
@@ -66,18 +67,25 @@ var instancesCounter = React.createClass({
 
         return (
             <div className="element-summary-panel usageSummary">
-            <div className="frm-panel-heading frm-panel-empty">
+            <div className="frm-panel-heading frm-panel-standar">
             </div>
                 <div className="panel frm-panel-default">
-                    <div className="panel-body frm-remake">
-                        <h3 className="frm-bold-text frm-remake frm-panel-pull-left">
-                           Instances
+                    <div className="panel-body">
+                        <h3 className="frm-secondary-text frm-bold-text">
+                           Total Instances
                         </h3>
                         <div>
                             <h6 className="frm-bold-text frm-body-h6">
                                 {this.props.data.total_instances}
                             </h6>
                         </div>
+                    </div>
+                    <div className="panel-footer frm-panel-footer-secondary">
+                        <Button bsStyle={null}
+                            className="btn frm-btn-secondary"
+                            href="admin/underConstruction">
+                            Instance Overview
+                        </Button>
                     </div>
                 </div>
             </div>

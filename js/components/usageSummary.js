@@ -2,8 +2,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom/server');
 var ElementSummary = require('./elementSummary.js');
-var reactBootstrap = require('react-bootstrap');
-var Button = reactBootstrap.Button;
 
 var usageSummary = React.createClass({
 
@@ -28,6 +26,7 @@ var usageSummary = React.createClass({
             var url;
             var instancesValue = 0, instancesQuota=0,
             memoryValue = 0, memoryQuota=0, procesorValue=0;
+            var reference;
 
             if (!datamanager.data.activeTenant){
                 // admin
@@ -35,6 +34,7 @@ var usageSummary = React.createClass({
             } else {
                 // tenant
                 url = "/data/"+datamanager.data.activeTenant.id+this.props.source;
+                reference = "tenant/usage";
             }
             $.get({
                 url:url})
@@ -107,6 +107,7 @@ var usageSummary = React.createClass({
     },
 
     render: function() {
+
         var dynamicWidth = Math.round(12 / this.props.data.length);
         var elements = [];
         var historyButton;
@@ -128,7 +129,8 @@ var usageSummary = React.createClass({
                     (props) => {
                         elements.push(
                             <div key={props.name} className={columnGrid}>
-                                <ElementSummary {...props}/>
+                                <ElementSummary {...props} reference={reference}
+                                history={this.props.history}/>
                             </div>
                         );
                     }
@@ -136,21 +138,10 @@ var usageSummary = React.createClass({
             }
         }
 
-        if (this.props.history !== false) {
-            //View usage Histroy button
-            historyButton = <div className="col-xs-12 frm-body-h6">
-                <Button bsStyle={null}
-                    className="btn frm-btn-secondary pull-right"
-                    href={reference}>
-                    View Usage History
-                </Button>
-            </div>
-        }
-
         return (
             <div className="row">
                 {elements}
-                {historyButton}
+
 
             </div>
         );

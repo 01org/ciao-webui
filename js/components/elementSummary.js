@@ -4,6 +4,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var d3Element = require("../d3_components/d3ElementSummary.js");
 var dom = require("react-faux-dom");
+var reactBootstrap = require('react-bootstrap');
+var Button = reactBootstrap.Button;
 
 var elementSummary = React.createClass({
 
@@ -15,7 +17,7 @@ var elementSummary = React.createClass({
 
     getDefaultProps: function() {
         // put some default data
-        var base = 120;
+        var base = 148;
         return {
             width: base,
             height: base * 1.5,
@@ -60,32 +62,53 @@ var elementSummary = React.createClass({
         }
     },
     renderPanel: function(){
+        // define labels for each concept
+        var reference;
         var body = this.props.value;
         var title = this.props.name;
-        var secondaryBody = (title == 'Memory' || title == 'Disk')?'MB':'';
-        var secondaryTitle = (title == 'Processor')?'':'';
+        var secondaryBody = (title == 'Memory Usage' || title == 'Disk Usage')?' MB':'';
+        var secondaryTitle = (title == 'Processor Load Average')?'':'';
+        var buttonLabel = title.split(" ");
+
+        // switching page jumps
+        if (buttonLabel[0] === "Total") {
+            if (this.props.history !== false) {
+                reference = "#instances-overview";
+            } else {
+                reference = "/" + ((this.props.reference).substr(0,6)) + "#instances-overview";
+            }
+            buttonLabel = "Instances Overview";
+        } else {
+            if (this.props.history !== false) {
+                reference = this.props.reference + "#" + buttonLabel[0];
+            } else {
+                reference = "#" + buttonLabel[0];
+            }
+            buttonLabel = buttonLabel[0] + " History";
+        }
+
+        // History Button
+        var historyButton = <Button bsStyle={null}
+                className="btn frm-btn-secondary"
+                href={reference}>
+                {buttonLabel}
+            </Button>
+
         return (
             <div className="element-summary-panel">
-                <div className="frm-panel-heading frm-panel-success-full">
+                <div className="frm-panel-heading frm-panel-standar">
                 </div>
                 <div className="panel frm-panel frm-panel-default frm-panel-remake">
                     <div className="panel-body">
+                        <h2 className="frm-secondary-text frm-bold-text">
+                        {title}
+                        </h2>
                         <h6 className="frm-bold-text frm-body-h6">
-                            {body}
+                            {body}{secondaryBody}
                         </h6>
-                        <div className="frm-secondary-text frm-bold-text">
-                            {secondaryBody}
-                        </div>
                     </div>
-                </div>
-                <div className="row" >
-                    <div className="col-xs-12 text-center">
-                        <div className="frm-bold-text">
-                            {title}
-                        </div>
-                        <div className="frm-secondary-text">
-                            {secondaryTitle}
-                        </div>
+                    <div className="panel-footer frm-panel-footer-secondary">
+                        {historyButton}
                     </div>
                 </div>
             </div>);
