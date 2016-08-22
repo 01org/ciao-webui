@@ -1,5 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Catalogue = require('../components/catalogue/catalogue.js');
 var InstancesHost = require('../components/instancesHost.js');
 var GroupOverview = require('../components/groupOverview.js');
 var UsageSummary = require('../components/usageSummary.js');
@@ -81,6 +82,16 @@ $('document').ready(function () {
     });
 
     datamanager.setDataSource('instances-host',{data:[]});
+
+    // Block storage volume table
+    var volumeComponent = 'block-catalogue';
+    datamanager.onSourceDataSet(volumeComponent, function (sourceData) {
+        ReactDOM.render(<Catalogue {...sourceData}/>,
+                        document.getElementById('block-catalogue'));
+    });
+    datamanager.setDataSource(volumeComponent, {data:[]});
+    // Ends block storage volume table
+
 
     // create group overview
     datamanager.onDataSourceSet('group-overview', function (sourceData) {
