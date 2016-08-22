@@ -41,42 +41,12 @@ var catalogue = React.createClass({
             query = query +
                 '&offset=' + (datamanager.data.offset ?
                     ((datamanager.data.offset -1)
-                    * this.props.recordsPerPage):0);
-            var url = this.props.source + query;
+                     * this.props.recordsPerPage):0);
+            // trigger 'onMount' listener set in the properties
+            // onMount should contain HTTP requests to fill in new data
+            // and trigger datamanager when new data is received.
+            this.props.onMount();
 
-            $.get({url: url })
-                .done(function (data) {
-                    if (data) {
-
-                        var url = this.props.source + '/count';
-                        $.get({url: url })
-                            .done(function (count) {
-
-                                var frmData = {
-                                    dataKey: this.props.dataKey,
-                                    source: this.props.source,
-                                    refresh: this.props.refresh,
-                                    recordsPerPage: this.props.recordsPerPage,
-                                    buttonsActions: this.props.buttonsActions,
-                                    data: data,
-                                    count: count,
-                                    selectActions: this.props.selectActions,
-                                    search:this.props.search,
-                                    id:this.props.id
-                                };
-
-                                this.setState({updating: false});
-                                datamanager.setDataSource(this.props.dataKey,
-                                    frmData);
-                            }.bind(this));
-                    }
-                }.bind(this))
-                .fail(function (err) {
-                    this.setState({updating: false});
-                    datamanager.setDataSource(this.props.dataKey, {
-                        dataKey: this.props.dataKey,
-                        source: this.props.source });
-                }.bind(this));
         }.bind(this);
         callSource();
 
