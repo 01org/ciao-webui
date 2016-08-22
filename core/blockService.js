@@ -18,6 +18,17 @@ blockService.prototype.getVolumes = function () {
     };
 };
 
+blockService.prototype.getVolumesDetail = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        var uri = "/v2/"+req.params.tenant+"/volumes/detail";
+        return adapter.onSuccess((data) => res.send(data.json))
+            .onError((data) => res.send(data))
+            .get(uri,req.session.token);
+    };
+};
+
 blockService.prototype.deleteVolume = function () {
     var adapter = this.adapter;
     var tokenManager = this.tokenManager;

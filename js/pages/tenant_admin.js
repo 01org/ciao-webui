@@ -85,7 +85,62 @@ $('document').ready(function () {
 
     // Block storage volume table
     var volumeComponent = 'block-catalogue';
+    // Definition and functionality of buttons within volume component
+    var volumeActions = [
+        {
+            label: 'Create',
+            name: 'Create',
+            onClick: function () {
+                var vol_name = prompt('Enter volume\'s name',-1);
+                var vol_size = prompt('Enter volume\'s size',-1);
+                $.post({url:
+                        '/data/' +
+                        datamanager.data.activeTenant.id
+                        + '/volumes',
+                        data: {name: vol_name,
+                               size: vol_size}
+                       })
+                    .done(function (data) {
+                        console.log(data);
+                    });
+            },
+            onDisabled: function () {}
+        },
+        {
+            label: 'Delete',
+            name: 'Delete',
+            onClick: function () {
+                var vol_id = prompt('Enter volume id');
+                $.ajax({
+                    type:'DELETE',
+                    url: '/data/' +
+                        datamanager.data.activeTenant.id
+                        + '/volumes/' +
+                        vol_id
+                       })
+                    .done(function (data) {
+                        console.log(data);
+                    });
+            },
+            onDisabled: function () {}
+        }
+    ];
+    // Volume component 'on mount' listener executes at 'componentDidMount'
+    var volumeOnMountListener = function (){
+        $.get('/data' + datamanager.data.activeTenant.id
+              + '/volumes/detail')
+            .done(function (data) {
+                datamanager.setDataSource(volumeComponent, data);
+            });
+
+    };
+
     datamanager.onSourceDataSet(volumeComponent, function (sourceData) {
+        // Set URI to request volume resources
+        sourceData.source = '/data' + datamanager.data.activeTenant.id
+            + '/volumes/detail';
+        sourceData.onMount = volumeOnMountListener;
+        sourceData.actions = volumeActions;
         ReactDOM.render(<Catalogue {...sourceData}/>,
                         document.getElementById('block-catalogue'));
     });

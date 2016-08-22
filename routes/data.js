@@ -36,6 +36,7 @@ router.delete('/:tenant/servers/:server', function (req, res, next) {
 /* Enpoints compatible with block storage API */
 // Block service GET Methods
 router.get('/:tenant/volumes', blockService.getVolumes());
+router.get('/:tenant/volumes/detail', blockService.getVolumesDetail());
 
 // Block service POST Methods
 router.post('/:tenant/volumes', blockService.createVolume());
