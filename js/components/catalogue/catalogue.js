@@ -10,7 +10,6 @@ var catalogue = React.createClass({
         return {
             pagination: 0, // offset is 0,
             items: 0,
-            refresh: 3500,
             status: null, // selected status
             updating: false
         };
@@ -20,7 +19,7 @@ var catalogue = React.createClass({
         // source defaults to server details url
         return {
             data: [],
-            count : 0,
+            count : 10,
             recordsPerPage:10
         };
     },
@@ -33,6 +32,11 @@ var catalogue = React.createClass({
 
     componentDidMount: function () {
 
+        // trigger 'onMount' listener set in the properties
+        // onMount should contain HTTP requests to fill in new data
+        // and trigger datamanager when new data is received.
+
+        var onmount = this.props.onMount;
         var callSource = function () {
             if (this.state.updating == true)
                 return;
@@ -42,10 +46,7 @@ var catalogue = React.createClass({
                 '&offset=' + (datamanager.data.offset ?
                     ((datamanager.data.offset -1)
                      * this.props.recordsPerPage):0);
-            // trigger 'onMount' listener set in the properties
-            // onMount should contain HTTP requests to fill in new data
-            // and trigger datamanager when new data is received.
-            this.props.onMount();
+            onmount(() => this.setState({updating: false}));
 
         }.bind(this);
         callSource();
@@ -67,17 +68,21 @@ var catalogue = React.createClass({
                 return text.replace('_', ' ');
             });
         }
+        console.log("New catalogue render",this.props.data);
         if (this.props.data) return React.createElement(CustomCatalogue, {
             data: this.props.data,
             count: this.props.count,
             columns: columns,
-            buttonsActions: this.props.buttonsActions,
+            actions: this.props.actions,
             dropDownActions: this.props.selectActions,
-            searchFields: this.props.search.searchFields,
-            searchTitle: this.props.search.title,
+            searchFields: this.props.search ?
+                this.props.search.searchFields ?
+                this.props.search.searchFields : []
+                : [],
+            searchTitle: this.props.search?this.props.search.title : '',
             onChangePage: this.onChangePage,
             id:this.props.id,
-            ref: 'catalogue',
+            ref: 'catalogue'
 
         });else return React.createElement('div', null);
     }

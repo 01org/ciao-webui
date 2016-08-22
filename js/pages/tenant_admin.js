@@ -126,25 +126,41 @@ $('document').ready(function () {
         }
     ];
     // Volume component 'on mount' listener executes at 'componentDidMount'
-    var volumeOnMountListener = function (){
-        $.get('/data' + datamanager.data.activeTenant.id
-              + '/volumes/detail')
+    var volumeOnMountListener = function (callback){
+        $.get('/data/' + datamanager.data.activeTenant.id
+              + '/volumes')
             .done(function (data) {
-                datamanager.setDataSource(volumeComponent, data);
+                callback();
+                var fmtData = data.volumes;
+                fmtData.links = 'links';
+                datamanager.setDataSource('block-catalogue', {
+                    data: fmtData
+                });
+            }).fail(function (err) {
+                callback();
+                datamanager.setDataSource('block-catalogue', {
+                    data: []
+                });
             });
 
     };
 
-    datamanager.onSourceDataSet(volumeComponent, function (sourceData) {
+    datamanager.onDataSourceSet(volumeComponent, function (sourceData) {
+        var refresh = (datamanager.data.REFRESH | 3000);
+        sourceData.refresh = Number(refresh);
+        sourceData.recordsPerPage = 10;
+        sourceData.dataKey = 'id';
         // Set URI to request volume resources
-        sourceData.source = '/data' + datamanager.data.activeTenant.id
+        sourceData.source = '/data/' + datamanager.data.activeTenant.id
             + '/volumes/detail';
         sourceData.onMount = volumeOnMountListener;
         sourceData.actions = volumeActions;
         ReactDOM.render(<Catalogue {...sourceData}/>,
                         document.getElementById('block-catalogue'));
     });
-    datamanager.setDataSource(volumeComponent, {data:[]});
+    setTimeout(() => datamanager.setDataSource('block-catalogue', {data:[]})
+               ,1500);
+
     // Ends block storage volume table
 
 
