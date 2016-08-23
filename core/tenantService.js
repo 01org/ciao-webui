@@ -306,4 +306,25 @@ tenantService.prototype.postServerAction = function () {
     };
 };
 
+// attach volume to a server
+tenantService.prototype.attachVolume = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        tokenManager.onSuccess((t) => {
+            var token = (t)?t:req.session.token;
+            var uri = "/v2.1/" + req.params.tenant +
+                    "/servers/"+req.params.server + "/os-volume_attachments";
+            var volumeAttachment = req.body;
+            var data = adapter.post(uri,
+                                    volumeAttachment,
+                                    token,
+                                    () => res.send(data.json));
+        }
+                              )
+            .validate(req, res);
+    };
+};
+
+
 module.exports = tenantService;

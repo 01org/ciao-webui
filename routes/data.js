@@ -54,6 +54,8 @@ router.post('/:tenant/servers', tenantService.createServers());
 router.post('/:tenant/servers/action', tenantService.postServersAction());
 router.post('/:tenant/servers/:server/action',
             tenantService.postServerAction());
+router.post('/:tenant/servers/:server/os-volume_attachments',
+            tenantService.attachVolume());
 
 router.get('/:tenant/servers/detail/count', tenantService.serversDetailCount());
 router.get('/:tenant/servers/detail', tenantService.serversDetail());
