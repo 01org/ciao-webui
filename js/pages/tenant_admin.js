@@ -128,11 +128,19 @@ $('document').ready(function () {
     // Volume component 'on mount' listener executes at 'componentDidMount'
     var volumeOnMountListener = function (callback){
         $.get('/data/' + datamanager.data.activeTenant.id
-              + '/volumes')
+              + '/volumes/detail')
             .done(function (data) {
                 callback();
-                var fmtData = data.volumes;
-                fmtData.links = 'links';
+                var fmtData = data.volumes.map((x) => {
+                    return {
+                        "volume_id":x.id,
+                        "name":x.name,
+                        "Size":new String(x.size," Gb"),
+                        "Description":x.description,
+                        "status":x.status,
+                        "bootable":x.bootable
+                    };
+                });
                 datamanager.setDataSource('block-catalogue', {
                     data: fmtData
                 });
@@ -149,7 +157,7 @@ $('document').ready(function () {
         var refresh = (datamanager.data.REFRESH | 3000);
         sourceData.refresh = Number(refresh);
         sourceData.recordsPerPage = 10;
-        sourceData.dataKey = 'id';
+        sourceData.id = 'volume_id';
         // Set URI to request volume resources
         sourceData.source = '/data/' + datamanager.data.activeTenant.id
             + '/volumes/detail';
