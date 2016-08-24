@@ -83,6 +83,28 @@ $('document').ready(function () {
 
     datamanager.setDataSource('instances-host',{data:[]});
 
+    //create a volume
+    var createVolume = function(data){
+        console.log('data', data);
+
+        $.post({url:
+            '/data/' +
+            datamanager.data.activeTenant.id
+            + '/volumes',
+                data: {
+                    name: data.name,
+                    size: data.size,
+                    size: data.description
+                }
+            })
+            .done(function (data) {
+                console.log('done', data);
+                //get data again?
+                datamanager.setDataSource('block-catalogue',
+                    {modal: null})
+            });
+
+    }
     // Block storage volume table
     var volumeComponent = 'block-catalogue';
     // Definition and functionality of buttons within volume component
@@ -91,18 +113,35 @@ $('document').ready(function () {
             label: 'Create',
             name: 'Create',
             onClick: function () {
-                var vol_name = prompt('Enter volume\'s name',-1);
-                var vol_size = prompt('Enter volume\'s size',-1);
-                $.post({url:
-                        '/data/' +
-                        datamanager.data.activeTenant.id
-                        + '/volumes',
-                        data: {name: vol_name,
-                               size: vol_size}
-                       })
-                    .done(function (data) {
-                        console.log(data);
-                    });
+                datamanager.setDataSource('block-catalogue', {
+                    modal: {
+                        title: 'Create a Volume',
+                        type:'form',
+                        fields: [
+                            {
+                                type:'text',
+                                field:'input',
+                                name:'name',
+                                label:'Name'
+                            },
+                            {
+                                type:'number',
+                                field:'input',
+                                name:'size',
+                                label:'Size'
+                            },
+                            {
+                                type:'text',
+                                field:'textarea',
+                                name:'description',
+                                label:'Description'
+                            }
+
+                        ],
+                        onAccept: createVolume,
+                        acceptText: 'Create'
+                    }
+                })
             },
             onDisabled: function () {}
         },
