@@ -36,6 +36,7 @@ router.delete('/:tenant/servers/:server', function (req, res, next) {
 /* Enpoints compatible with block storage API */
 // Block service GET Methods
 router.get('/:tenant/volumes', blockService.getVolumes());
+router.get('/:tenant/volumes/detail', blockService.getVolumesDetail());
 
 // Block service POST Methods
 router.post('/:tenant/volumes', blockService.createVolume());
@@ -53,6 +54,8 @@ router.post('/:tenant/servers', tenantService.createServers());
 router.post('/:tenant/servers/action', tenantService.postServersAction());
 router.post('/:tenant/servers/:server/action',
             tenantService.postServerAction());
+router.post('/:tenant/servers/:server/os-volume_attachments',
+            tenantService.attachVolume());
 
 router.get('/:tenant/servers/detail/count', tenantService.serversDetailCount());
 router.get('/:tenant/servers/detail', tenantService.serversDetail());

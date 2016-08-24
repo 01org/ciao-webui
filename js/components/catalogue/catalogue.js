@@ -10,7 +10,6 @@ var catalogue = React.createClass({
         return {
             pagination: 0, // offset is 0,
             items: 0,
-            refresh: 3500,
             status: null, // selected status
             updating: false
         };
@@ -20,7 +19,7 @@ var catalogue = React.createClass({
         // source defaults to server details url
         return {
             data: [],
-            count : 0,
+            count : 10,
             recordsPerPage:10
         };
     },
@@ -33,6 +32,11 @@ var catalogue = React.createClass({
 
     componentDidMount: function () {
 
+        // trigger 'onMount' listener set in the properties
+        // onMount should contain HTTP requests to fill in new data
+        // and trigger datamanager when new data is received.
+
+        var onmount = this.props.onMount;
         var callSource = function () {
             if (this.state.updating == true)
                 return;
@@ -41,42 +45,9 @@ var catalogue = React.createClass({
             query = query +
                 '&offset=' + (datamanager.data.offset ?
                     ((datamanager.data.offset -1)
-                    * this.props.recordsPerPage):0);
-            var url = this.props.source + query;
+                     * this.props.recordsPerPage):0);
+            onmount(() => this.setState({updating: false}));
 
-            $.get({url: url })
-                .done(function (data) {
-                    if (data) {
-
-                        var url = this.props.source + '/count';
-                        $.get({url: url })
-                            .done(function (count) {
-
-                                var frmData = {
-                                    dataKey: this.props.dataKey,
-                                    source: this.props.source,
-                                    refresh: this.props.refresh,
-                                    recordsPerPage: this.props.recordsPerPage,
-                                    buttonsActions: this.props.buttonsActions,
-                                    data: data,
-                                    count: count,
-                                    selectActions: this.props.selectActions,
-                                    search:this.props.search,
-                                    id:this.props.id
-                                };
-
-                                this.setState({updating: false});
-                                datamanager.setDataSource(this.props.dataKey,
-                                    frmData);
-                            }.bind(this));
-                    }
-                }.bind(this))
-                .fail(function (err) {
-                    this.setState({updating: false});
-                    datamanager.setDataSource(this.props.dataKey, {
-                        dataKey: this.props.dataKey,
-                        source: this.props.source });
-                }.bind(this));
         }.bind(this);
         callSource();
 
@@ -97,17 +68,21 @@ var catalogue = React.createClass({
                 return text.replace('_', ' ');
             });
         }
+        console.log("New catalogue render",this.props.data);
         if (this.props.data) return React.createElement(CustomCatalogue, {
             data: this.props.data,
             count: this.props.count,
             columns: columns,
-            buttonsActions: this.props.buttonsActions,
+            actions: this.props.actions,
             dropDownActions: this.props.selectActions,
-            searchFields: this.props.search.searchFields,
-            searchTitle: this.props.search.title,
+            searchFields: this.props.search ?
+                this.props.search.searchFields ?
+                this.props.search.searchFields : []
+                : [],
+            searchTitle: this.props.search?this.props.search.title : '',
             onChangePage: this.onChangePage,
             id:this.props.id,
-            ref: 'catalogue',
+            ref: 'catalogue'
 
         });else return React.createElement('div', null);
     }

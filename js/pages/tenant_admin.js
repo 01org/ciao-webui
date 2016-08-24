@@ -1,5 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var Catalogue = require('../components/catalogue/catalogue.js');
 var InstancesHost = require('../components/instancesHost.js');
 var GroupOverview = require('../components/groupOverview.js');
 var UsageSummary = require('../components/usageSummary.js');
@@ -81,6 +82,95 @@ $('document').ready(function () {
     });
 
     datamanager.setDataSource('instances-host',{data:[]});
+
+    // Block storage volume table
+    var volumeComponent = 'block-catalogue';
+    // Definition and functionality of buttons within volume component
+    var volumeActions = [
+        {
+            label: 'Create',
+            name: 'Create',
+            onClick: function () {
+                var vol_name = prompt('Enter volume\'s name',-1);
+                var vol_size = prompt('Enter volume\'s size',-1);
+                $.post({url:
+                        '/data/' +
+                        datamanager.data.activeTenant.id
+                        + '/volumes',
+                        data: {name: vol_name,
+                               size: vol_size}
+                       })
+                    .done(function (data) {
+                        console.log(data);
+                    });
+            },
+            onDisabled: function () {}
+        },
+        {
+            label: 'Delete',
+            name: 'Delete',
+            onClick: function () {
+                var vol_id = prompt('Enter volume id');
+                $.ajax({
+                    type:'DELETE',
+                    url: '/data/' +
+                        datamanager.data.activeTenant.id
+                        + '/volumes/' +
+                        vol_id
+                       })
+                    .done(function (data) {
+                        console.log(data);
+                    });
+            },
+            onDisabled: function () {}
+        }
+    ];
+    // Volume component 'on mount' listener executes at 'componentDidMount'
+    var volumeOnMountListener = function (callback){
+        $.get('/data/' + datamanager.data.activeTenant.id
+              + '/volumes/detail')
+            .done(function (data) {
+                callback();
+                var fmtData = data.volumes.map((x) => {
+                    return {
+                        "volume_id":x.id,
+                        "name":x.name,
+                        "Size":new String(x.size," Gb"),
+                        "Description":x.description,
+                        "status":x.status,
+                        "bootable":x.bootable
+                    };
+                });
+                datamanager.setDataSource('block-catalogue', {
+                    data: fmtData
+                });
+            }).fail(function (err) {
+                callback();
+                datamanager.setDataSource('block-catalogue', {
+                    data: []
+                });
+            });
+
+    };
+
+    datamanager.onDataSourceSet(volumeComponent, function (sourceData) {
+        var refresh = (datamanager.data.REFRESH | 3000);
+        sourceData.refresh = Number(refresh);
+        sourceData.recordsPerPage = 10;
+        sourceData.id = 'volume_id';
+        // Set URI to request volume resources
+        sourceData.source = '/data/' + datamanager.data.activeTenant.id
+            + '/volumes/detail';
+        sourceData.onMount = volumeOnMountListener;
+        sourceData.actions = volumeActions;
+        ReactDOM.render(<Catalogue {...sourceData}/>,
+                        document.getElementById('block-catalogue'));
+    });
+    setTimeout(() => datamanager.setDataSource('block-catalogue', {data:[]})
+               ,1500);
+
+    // Ends block storage volume table
+
 
     // create group overview
     datamanager.onDataSourceSet('group-overview', function (sourceData) {

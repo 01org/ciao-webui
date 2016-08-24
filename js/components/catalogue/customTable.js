@@ -23,7 +23,7 @@ var customTable = React.createClass({
             newSelected.push(selectedRow);
         }else{
             var indexRow = this.props.selectedRows.findIndex(function (row) {
-                return row[key] == selectedRow[key]
+                return row[key] == selectedRow[key];
             });
 
             this.props.selectedRows.forEach(function (element, index) {
@@ -31,7 +31,7 @@ var customTable = React.createClass({
                 if (selectedRow[key] != element[key]) {
                     newSelected.push(element);
                 }
-            })
+            });
 
             //If not exist, add it.
             if(indexRow < 0) {
