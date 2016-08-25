@@ -29,6 +29,12 @@ var Input = reactBootstrap.Input;
 
 var customModal = React.createClass({
 
+    getInitialState: function () {
+        return {
+            showModal: true
+        };
+    },
+
     getDefaultProps: function() {
         return {
             acceptText:'Ok',
@@ -38,9 +44,11 @@ var customModal = React.createClass({
             data:[]
         };
     },
+
     setValues: function (key, ev){
         this.props.data[key] = ev.target.value;
     },
+
     getBody: function(){
         if(this.props.type == 'form'){
             return this.props.fields.map((row, i) => {
@@ -89,8 +97,8 @@ var customModal = React.createClass({
                         label={row.label}
                         placeholder={row.placeholder?row.placeholder:""}>
                             {row.options.map((opt, i) => {
-                                return <option value={opt} key={i}>
-                                    {opt}
+                                return <option value={opt.value} key={i}>
+                                    {opt.label}
                                 </option>;})
                             }
                     </Input>;
@@ -107,13 +115,20 @@ var customModal = React.createClass({
             );
         }
     },
-    handleSubmit: function(){
+
+    handleClose: function () {
+        this.setState({showModal:false});
+        this.props.onClose();
+    },
+
+    handleSubmit: function () {
+        this.setState({showModal:false});
         this.props.onAccept(this.props.data);
     },
-    render: function() {
 
+    render: function() {
         return  (
-            <Modal show={true} onHide={this.props.onClose}>
+            <Modal show={this.state.showModal} onHide={this.handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
                 </Modal.Header>
@@ -121,7 +136,7 @@ var customModal = React.createClass({
                     {this.getBody()}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.onClose}>
+                    <Button onClick={this.handleClose}>
                         {this.props.cancelText}
                     </Button>
                     <Button onClick={this.handleSubmit}>
