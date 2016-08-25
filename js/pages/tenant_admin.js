@@ -85,7 +85,8 @@ $('document').ready(function () {
     datamanager.setDataSource('instances-host',{data:[]});
 
     // Starts Block storage volume table implementation
-
+    // reference name for volume table container
+    var volumeComponent = 'block-catalogue';
     //create a volume function: executed when user clicks on Create btn/action
     var createVolume = function(fields, containerNode){
         // get data from modal supplied fields and build form request body
@@ -110,8 +111,6 @@ $('document').ready(function () {
             });
     };
 
-    // reference name for volume table container
-    var volumeComponent = 'block-catalogue';
     // Modal create volume fields - use in 'Create' action
     // available fields: [name, size, description(optional)]
     var modalCreateFields =[
@@ -143,16 +142,17 @@ $('document').ready(function () {
             name: 'Create',
             onClick: function () {
                 var node = document.createElement("div");
-                node.id = "temp-volume-create-modal";
-                if (!document.getElementById("temp-volume-create-modal"))
+                node.setAttribute('id',"temp-volume-create-modal");
+                if (!document.getElementById(node.id))
                     document.body.appendChild(node);
 
                 var modalParams = {
                     title: 'Create a Volume',
                     type:'form',
-                    fields: modalFields,
+                    fields: modalCreateFields,
                     onAccept: () => createVolume(modalCreateFields, node),
-                    onClose: () => document.getElementById(node.id).remove(),
+                    onClose: function () {
+                        document.getElementById(node.id).remove();},
                     acceptText: 'Create'
                 };
                 ReactDOM.render(<CustomModal {...modalParams} />,
@@ -164,17 +164,50 @@ $('document').ready(function () {
             label: 'Delete',
             name: 'Delete',
             onClick: function () {
-                var vol_id = prompt('Enter volume id');
-                $.ajax({
-                    type:'DELETE',
-                    url: '/data/' +
-                        datamanager.data.activeTenant.id
-                        + '/volumes/' +
-                        vol_id
-                       })
-                    .done(function (data) {
-                        console.log(data);
-                    });
+                var node = document.createElement("div");
+                node.setAttribute('id',"temp-volume-modal");
+                if (!document.getElementById("temp-volume-modal"))
+                    document.body.appendChild(node);
+                //get volume list from datamanager available sources
+                var volumeSource = datamanager.sources[volumeComponent].data;
+                var volumeList = volumeSource ?
+                        volumeSource.map((i) => {
+                            return {value:i.volume_id, label:i.name};
+                        }) : [];
+                // TODO: check text format of options, could be more legible
+                var modalParams = {
+                    title: "Delete Volume",
+                    fields: [
+                        {
+                            id: "delete_volume_id",
+                            name: "volume_id",
+                            label: "Select Volume",
+                            field: "select",
+                            options: volumeList
+                        }
+                    ],
+                    onAccept: function (params) {
+                        var vol_id = document
+                                .getElementById('delete_volume_id').value;
+                        $.ajax({
+                            type:'DELETE',
+                            url: '/data/' +
+                                datamanager.data.activeTenant.id
+                                + '/volumes/' +
+                                vol_id
+                        })
+                            .done(function (data) {
+                                console.log(data);
+                            });
+                        document.getElementById(node.id).remove();
+                    },
+                    onClose: () => document.getElementById(node.id).remove(),
+                    cancelText: "Cancel",
+                    acceptText: "Delete"
+                };
+
+                ReactDOM.render(<CustomModal {...modalParams} />,
+                                document.getElementById('temp-volume-modal'));
             },
             onDisabled: function () {}
         },
@@ -183,29 +216,59 @@ $('document').ready(function () {
             name: 'Attach',
             onClick: function () {
                 var node = document.createElement("div");
-                node.id = "temp-volume-modal";
+                node.setAttribute('id',"temp-volume-modal");
                 if (!document.getElementById("temp-volume-modal"))
                     document.body.appendChild(node);
 
-                var instanceList = datamanager.sources['instances-host']
-                        .data.map((i) => i.id);
+                // Get instance list from datamanager available sources
+                var instanceSource = datamanager.sources['instances-host'].data;
+                var instanceList =  instanceSource ?
+                        instanceSource.map((i) => {
+                            return {value: i.id, label:i.id};
+                        }) : [];
+                //get volume list from datamanager available sources
+                var volumeSource = datamanager.sources[volumeComponent].data;
+                var volumeList = volumeSource ?
+                        volumeSource.map((i) => {
+                            return {value:i.volume_id, label:i.name};
+                        }) : [];
+                // TODO: check text format of options, could be more legible
                 var modalParams = {
                     title: "Attach Instance",
                     fields: [
                         {
-                            id:"volume_id",
+                            id: "attach_volume_id",
                             name: "volume_id",
-                            label:"instance",
-                            type:"text"},
+                            label: "Select Volume",
+                            field: "select",
+                            options: volumeList
+                        },
                         {
-                            id: "instance",
+                            id: "attach_instance",
                             label: "Select Instance to attach volume",
-                            type:"select",
+                            field:"select",
                             options: instanceList
                         }
                                 ],
                     onAccept: function (params) {
-                        console.log(params);
+                        var vol_id = document
+                                .getElementById("attach_volume_id").value;
+                        var server_id = document
+                                .getElementById("attach_instance").value;
+                        var volumeAttachment = {"volumeAttachment":{
+                            "volumeId":vol_id,
+                            "device": null
+                        }};
+                        $.post({
+                            url: '/data/' +
+                                datamanager.data.activeTenant.id
+                                + '/servers/' + server_id
+                                + '/os-volume_attachments',
+                            data:{"json": JSON.stringify(volumeAttachment)}
+                        })
+                            .done((data) => console.log(data))
+                            .fail((data) => console.log(data));
+                        document.getElementById(node.id).remove();
                     },
                     onClose: () => document.getElementById(node.id).remove(),
                     cancelText: "Cancel",
@@ -214,21 +277,6 @@ $('document').ready(function () {
 
                 ReactDOM.render(<CustomModal {...modalParams} />,
                                 document.getElementById('temp-volume-modal'));
-                // var vol_id = prompt('Enter volume id');
-                // var server_id = prompt('Enter instance id');
-                // var volumeAttachment = {"volumeAttachment":{
-                //     "volumeId":vol_id,
-                //     "device": null
-                // }};
-                // $.post({
-                //     url: '/data/' +
-                //         datamanager.data.activeTenant.id
-                //         + '/servers/' + server_id
-                //         + '/os-volume_attachments',
-                //     data:{"json": JSON.stringify(volumeAttachment)}
-                // })
-                //     .done((data) => console.log(data))
-                //     .fail((data) => console.log(data));
             },
             onDisabled: function () {}
         }
