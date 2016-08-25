@@ -52,10 +52,10 @@ router.put('/:tenant/volumes/:volume_id', blockService.updateVolume());
 // Tenant service POST Methods
 router.post('/:tenant/servers', tenantService.createServers());
 router.post('/:tenant/servers/action', tenantService.postServersAction());
-router.post('/:tenant/servers/:server/action',
-            tenantService.postServerAction());
 router.post('/:tenant/servers/:server/os-volume_attachments',
             tenantService.attachVolume());
+router.post('/:tenant/servers/:server/action',
+            tenantService.postServerAction());
 
 router.get('/:tenant/servers/detail/count', tenantService.serversDetailCount());
 router.get('/:tenant/servers/detail', tenantService.serversDetail());

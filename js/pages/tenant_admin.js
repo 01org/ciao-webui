@@ -7,6 +7,7 @@ var UsageSummary = require('../components/usageSummary.js');
 var AddInstances = require('../components/addInstances.js');
 var navbar = require('../components/navbar.js');
 var Logger = require('../util/logger.js');
+var FormModal = require('../components/FormModal.js');
 var $ = require('jquery');
 
 $('document').ready(function () {
@@ -107,6 +108,7 @@ $('document').ready(function () {
     }
     // Block storage volume table
     var volumeComponent = 'block-catalogue';
+
     // Definition and functionality of buttons within volume component
     var volumeActions = [
         {
@@ -162,8 +164,62 @@ $('document').ready(function () {
                     });
             },
             onDisabled: function () {}
+        },
+        {
+            label: 'Attach',
+            name: 'Attach',
+            onClick: function () {
+                var node = document.createElement("div");
+                node.id = "temp-volume-modal";
+                if (!document.getElementById("temp-volume-modal"))
+                    document.body.appendChild(node);
+
+                var instanceList = datamanager.sources['instances-host']
+                        .data.map((i) => i.id);
+                var modalParams = {
+                    title: "Attach Instance",
+                    parameters: [
+                        {
+                            id:"volume_id",
+                            label:"instance",
+                            type:"text"},
+                        {
+                            id: "instance",
+                            label: "Select Instance to attach volume",
+                            type:"select",
+                            options: instanceList
+                        }
+                                ],
+                    onSubmit: function (params) {
+                        console.log(params);
+                    },
+                    onCancel: () => document.getElementById(node.id).remove(),
+                    cancelLabel: "Cancel",
+                    submitLabel: "Attach"
+                };
+
+                ReactDOM.render(<FormModal {...modalParams} />,
+                                document.getElementById('temp-volume-modal'));
+                // var vol_id = prompt('Enter volume id');
+                // var server_id = prompt('Enter instance id');
+                // var volumeAttachment = {"volumeAttachment":{
+                //     "volumeId":vol_id,
+                //     "device": null
+                // }};
+                // $.post({
+                //     url: '/data/' +
+                //         datamanager.data.activeTenant.id
+                //         + '/servers/' + server_id
+                //         + '/os-volume_attachments',
+                //     data:{"json": JSON.stringify(volumeAttachment)}
+                // })
+                //     .done((data) => console.log(data))
+                //     .fail((data) => console.log(data));
+            },
+            onDisabled: function () {}
         }
     ];
+
     // Volume component 'on mount' listener executes at 'componentDidMount'
     var volumeOnMountListener = function (callback){
         $.get('/data/' + datamanager.data.activeTenant.id
