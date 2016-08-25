@@ -65,7 +65,11 @@ tenantService.prototype.serversDetail = function () {
                         res.send(servers
                                  .map((value) => {
                                      var image = value.image.id;
-                                     var address = value.addresses.private[0];
+                                     var address = value.addresses.private ?
+                                             value.addresses.private[0]
+                                             :value.addresses.public ?
+                                             value.addresses.public[0]
+                                         :'none';
                                      return {
                                          "id": value.id,
                                          "status": value.status,
@@ -315,11 +319,26 @@ tenantService.prototype.attachVolume = function () {
             var token = (t)?t:req.session.token;
             var uri = "/v2.1/" + req.params.tenant +
                     "/servers/"+req.params.server + "/os-volume_attachments";
-            var volumeAttachment = req.body;
-            var data = adapter.post(uri,
-                                    volumeAttachment,
-                                    token,
-                                    () => res.send(data.json));
+            var body = JSON.parse(req.body.json);
+            console.log(uri);
+            console.log("Vol attachment", body);
+            var data = adapter.onSuccess(() => {
+                console.log(data);
+                res.send(data.json);
+            })
+                    .onError(() => {
+                        console.log('ERROR:',data);
+                        res.send(data);
+                    })
+                    .post(uri,
+                          body,
+                          // {
+                          //     "volumeAttachment":{
+                          //         "volumeId":body.volumeAttachment.id,
+                          //         "device":"/dev/vdd"
+                          //     }
+                          // },
+                          token);
         }
                               )
             .validate(req, res);
