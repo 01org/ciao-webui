@@ -4,6 +4,7 @@ var reactBootstrap = require('react-bootstrap');
 var Modal = reactBootstrap.Modal;
 var Button = reactBootstrap.Button;
 var Input = reactBootstrap.Input;
+var data = [];
 
 /* Custom modal usage
    Properties
@@ -46,7 +47,7 @@ var customModal = React.createClass({
     },
 
     setValues: function (key, ev){
-        this.props.data[key] = ev.target.value;
+        data[key] = ev.target.value;
     },
 
     getBody: function(){
@@ -127,6 +128,7 @@ var customModal = React.createClass({
     },
 
     render: function() {
+        data = [];
         return  (
             <Modal show={this.state.showModal} onHide={this.handleClose}>
                 <Modal.Header closeButton>
