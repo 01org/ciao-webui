@@ -2,7 +2,18 @@
 var React = require('react');
 var CustomCatalogue = require('./customCatalogue.js');
 var $ = require('jquery');
-var CustomModal = require('./customModal.js');
+
+// Custom catalogue usage
+/*
+
+ Properties:
+ selectActions: [] JSON Array
+  JSON object definition: {label:"string (visible text)" ,
+ name:"string id
+ ", query: {"table_field":"value to filter"}
+    query special values: name none/all status none/all
+ }
+*/
 
 var catalogue = React.createClass({
     displayName: 'catalogue',
@@ -21,8 +32,8 @@ var catalogue = React.createClass({
         return {
             data: [],
             count : 10,
-            recordsPerPage:10
-            //modalOpen:false
+            recordsPerPage:10,
+            selectActions: []
         };
     },
 
@@ -61,15 +72,7 @@ var catalogue = React.createClass({
     onChangePage: function (lastRecord) {
         this.setState({ pagination: lastRecord });
     },
-    renderModal: function (options) {
 
-        if (this.props.modal) {
-            return React.createElement(CustomModal, options);
-        } else {
-            return null;
-        }
-    },
-    
     render: function () {
 
         var columns = [];
@@ -78,30 +81,23 @@ var catalogue = React.createClass({
                 return text.replace('_', ' ');
             });
         }
+        console.log("New catalogue render",this.props);
+        if (this.props.data) return React.createElement(CustomCatalogue, {
+            data: this.props.data,
+            count: this.props.count,
+            columns: columns,
+            actions: this.props.actions,
+            dropDownActions: this.props.selectActions,
+            searchFields: this.props.search ?
+                this.props.search.searchFields ?
+                this.props.search.searchFields : []
+                : [],
+            searchTitle: this.props.search?this.props.search.title : '',
+            onChangePage: this.onChangePage,
+            id:this.props.id,
+            ref: 'catalogue'
 
-        console.log("New catalogue render", this.props);
-        if (this.props.data)  return React.createElement(
-            'div',
-            null,
-            React.createElement(CustomCatalogue, {
-                data: this.props.data,
-                count: this.props.count,
-                columns: columns,
-                actions: this.props.actions,
-                dropDownActions: this.props.selectActions,
-                searchFields: this.props.search ?
-                    this.props.search.searchFields ?
-                        this.props.search.searchFields : []
-                    : [],
-                searchTitle: this.props.search ? this.props.search.title : '',
-                onChangePage: this.onChangePage,
-                id: this.props.id,
-                ref: 'catalogue'
-
-            }),
-            this.renderModal(this.props.modal)
-        ); else return React.createElement('div', null);
-
+        });else return React.createElement('div', null);
     }
 });
 

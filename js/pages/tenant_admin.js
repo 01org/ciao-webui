@@ -140,7 +140,7 @@ $('document').ready(function () {
         {
             label: 'Create',
             name: 'Create',
-            onClick: function () {
+            onClick: function (props, state) {
                 var node = document.createElement("div");
                 node.setAttribute('id',"temp-volume-create-modal");
                 if (!document.getElementById(node.id))
@@ -163,7 +163,7 @@ $('document').ready(function () {
         {
             label: 'Delete',
             name: 'Delete',
-            onClick: function () {
+            onClick: function (props, state) {
                 var node = document.createElement("div");
                 node.setAttribute('id',"temp-volume-modal");
                 if (!document.getElementById("temp-volume-modal"))
@@ -175,9 +175,36 @@ $('document').ready(function () {
                             return {value:i.volume_id, label:i.name};
                         }) : [];
                 // TODO: check text format of options, could be more legible
-                var modalParams = {
-                    title: "Delete Volume",
-                    fields: [
+
+                // Create modal params for deletion
+                // if 1 or more volume is selected, just confirm
+                // if no volumes are selected trigger modal to select 1 action
+                var title, fields, type, onAccept;
+                if (props.length > 0) {
+                    title = "Delete selected volumes?";
+                    type = null;
+                    fields = [];
+                    onAccept = function (params) {
+                        props.forEach((volume) => {
+                            var vol_id = volume.volume_id;
+                            $.ajax({
+                                type:'DELETE',
+                                url: '/data/' +
+                                    datamanager.data.activeTenant.id
+                                    + '/volumes/' +
+                                    vol_id
+                            })
+                                .done(function (data) {
+                                    console.log(data);
+                                });
+                        });
+
+                        document.getElementById(node.id).remove();
+                    };
+                } else {
+                    title = "Delete Volume";
+                    type = "form";
+                    fields = [
                         {
                             id: "delete_volume_id",
                             name: "volume_id",
@@ -185,8 +212,8 @@ $('document').ready(function () {
                             field: "select",
                             options: volumeList
                         }
-                    ],
-                    onAccept: function (params) {
+                    ];
+                    onAccept = function (params) {
                         var vol_id = document
                                 .getElementById('delete_volume_id').value;
                         $.ajax({
@@ -200,7 +227,13 @@ $('document').ready(function () {
                                 console.log(data);
                             });
                         document.getElementById(node.id).remove();
-                    },
+                    };
+                }
+                var modalParams = {
+                    title: "Delete Volume",
+                    type: "form",
+                    fields: fields,
+                    onAccept: onAccept,
                     onClose: () => document.getElementById(node.id).remove(),
                     cancelText: "Cancel",
                     acceptText: "Delete"
@@ -214,7 +247,7 @@ $('document').ready(function () {
         {
             label: 'Attach',
             name: 'Attach',
-            onClick: function () {
+            onClick: function (props, state) {
                 var node = document.createElement("div");
                 node.setAttribute('id',"temp-volume-modal");
                 if (!document.getElementById("temp-volume-modal"))
@@ -235,6 +268,7 @@ $('document').ready(function () {
                 // TODO: check text format of options, could be more legible
                 var modalParams = {
                     title: "Attach Instance",
+                    type: "form",
                     fields: [
                         {
                             id: "attach_volume_id",
@@ -310,8 +344,20 @@ $('document').ready(function () {
 
     };
 
+    // Set volume component's event listener on datamanager
     datamanager.onDataSourceSet(volumeComponent, function (sourceData) {
         var refresh = (datamanager.data.REFRESH | 3000);
+        // set Select actions
+        sourceData.selectActions = [
+            {label:'Select all available',string:"select_available",
+             query:{"status":"available"}},
+            {label:'Select all attached',string:"select_attached",
+             query:{"status":"in-use"}},
+            {label:'Select all',string:"select_all",
+             query:{"all":"all"}},
+            {label:'Select none',string:"select_none",
+             query:{"none":"none"}}
+        ];
         sourceData.refresh = Number(refresh);
         sourceData.recordsPerPage = 10;
         sourceData.id = 'volume_id';

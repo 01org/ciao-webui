@@ -40,7 +40,7 @@ var customModal = React.createClass({
             acceptText:'Ok',
             cancelText:'Cancel',
             title:'Title of the modal',
-            type: 'form',
+            type: null,
             data:[]
         };
     },
@@ -118,12 +118,12 @@ var customModal = React.createClass({
 
     handleClose: function () {
         this.setState({showModal:false});
-        this.props.onClose();
+        this.props.onClose(this.props.data, this.state);
     },
 
     handleSubmit: function () {
         this.setState({showModal:false});
-        this.props.onAccept(this.props.data);
+        this.props.onAccept(this.props.data, this.state);
     },
 
     render: function() {

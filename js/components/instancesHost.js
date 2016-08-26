@@ -140,8 +140,8 @@ var instancesHost = React.createClass({
     //If at least one is exites or stopped, enabled the button
     disabledStartButton: function (items) {
         var find = items.filter(function(item){
-            return item.status == 'exited' || item.status == 'stopped'
-        })
+            return item.status == 'exited' || item.status == 'stopped';
+        });
 
         return find.length == 0;
     },
@@ -149,8 +149,8 @@ var instancesHost = React.createClass({
     //If at least one is active, enabled the button
     disabledStopButton: function (items) {
         var find = items.filter(function(item){
-            return item.status == 'active'
-        })
+            return item.status == 'active';
+        });
 
         return find.length == 0;
     },
@@ -281,7 +281,7 @@ var instancesHost = React.createClass({
             onChangePage: this.onChangePage,
             id: 'id',
             ref: 'catalogue',
-            searchTitle: 'Search Instances',
+            searchTitle: 'Search Instances'
         });else return React.createElement('div', null);
     }
 });
