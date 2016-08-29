@@ -58,7 +58,7 @@ var customModal = React.createClass({
                     return <Input
                                 id={row.id}
                                 label={row.label}
-                                value={this.props.data[row.name]}
+                                value={data[row.name]}
                                 onChange={this.setValues.bind(this, row.name)}
                                 type={row.type} />;
                     break;
@@ -82,7 +82,7 @@ var customModal = React.createClass({
                                             id: row.id,
                                             className: 'form-control' ,
                                             label:row.label,
-                                            value:this.props.data[row.name],
+                                            value:data[row.name],
                                             onChange:this.setValues.bind(this, row.name)
                                         },
                                         ''
@@ -119,12 +119,12 @@ var customModal = React.createClass({
 
     handleClose: function () {
         this.setState({showModal:false});
-        this.props.onClose(this.props.data, this.state);
+        this.props.onClose(data, this.state);
     },
 
     handleSubmit: function () {
         this.setState({showModal:false});
-        this.props.onAccept(this.props.data, this.state);
+        this.props.onAccept(data, this.state);
     },
 
     render: function() {
