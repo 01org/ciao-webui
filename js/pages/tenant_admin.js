@@ -119,21 +119,31 @@ $('document').ready(function () {
             type:'text',
             field:'input',
             name:'name',
-            label:'Name'
+            label:'Name',
+            validate:{
+                required:true
+            }
         },
         {
             id: 'volume_size',
             type:'number',
             field:'input',
             name:'size',
-            label:'Size'
+            label:'Size',
+            validate:{
+                required:true
+            }
         },
         {
             id: 'volume_desc',
             type:'textarea',
             field:'textarea',
             name:'description',
-            label:'Description' }];
+            label:'Description',
+            validate:{
+                required:false
+            }
+        }];
 
     // Actions definition - add functionality to buttons within volume table
     var volumeActions = [
@@ -210,7 +220,10 @@ $('document').ready(function () {
                             name: "volume_id",
                             label: "Select Volume",
                             field: "select",
-                            options: volumeList
+                            options: volumeList,
+                            validate:{
+                                required:false
+                            }
                         }
                     ];
                     onAccept = function (params) {
@@ -231,13 +244,17 @@ $('document').ready(function () {
                 }
                 var modalParams = {
                     title: "Delete Volume",
-                    type: "form",
+                    //type: "form",
                     fields: fields,
+                    body: "You're about to remove a volume, this may result in "
+                            + "a loss of data. Are you sure you want to remove?",
                     onAccept: onAccept,
                     onClose: () => document.getElementById(node.id).remove(),
                     cancelText: "Cancel",
                     acceptText: "Delete"
                 };
+
+                console.log('modalParams', modalParams);
 
                 ReactDOM.render(<CustomModal {...modalParams} />,
                                 document.getElementById('temp-volume-modal'));
@@ -275,16 +292,23 @@ $('document').ready(function () {
                             name: "volume_id",
                             label: "Select Volume",
                             field: "select",
-                            options: volumeList
+                            options: volumeList,
+                            validate:{
+                                required:false
+                            }
                         },
                         {
                             id: "attach_instance",
                             label: "Select Instance to attach volume",
                             field:"select",
-                            options: instanceList
+                            options: instanceList,
+                            validate:{
+                                required:false
+                            }
                         }
                                 ],
                     onAccept: function (params) {
+                        
                         var vol_id = document
                                 .getElementById("attach_volume_id").value;
                         var server_id = document

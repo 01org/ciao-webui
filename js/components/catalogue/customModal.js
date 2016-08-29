@@ -4,6 +4,7 @@ var reactBootstrap = require('react-bootstrap');
 var Modal = reactBootstrap.Modal;
 var Button = reactBootstrap.Button;
 var Input = reactBootstrap.Input;
+var Alert = reactBootstrap.Alert;
 var data = [];
 
 /* Custom modal usage
@@ -16,7 +17,10 @@ var data = [];
              id:"html id",
              label: "title or label",
              type:html types (text, number),
-             options:[array of select values and labels {value"":,label:""}]
+             options:[array of select values and labels {value"":,label:""}],
+             validate:{
+                required:true/false
+             }
          }
     onClose:
       type: function
@@ -32,7 +36,8 @@ var customModal = React.createClass({
 
     getInitialState: function () {
         return {
-            showModal: true
+            showModal: true,
+            showAlert:false
         };
     },
 
@@ -53,11 +58,13 @@ var customModal = React.createClass({
     getBody: function(){
         if(this.props.type == 'form'){
             return this.props.fields.map((row, i) => {
+
+                var label = (row.validate.required)?row.label + '*':row.label;
                 switch(row.field) {
                 case "input":
                     return <Input
                                 id={row.id}
-                                label={row.label}
+                                label={label}
                                 value={data[row.name]}
                                 onChange={this.setValues.bind(this, row.name)}
                                 type={row.type} />;
@@ -81,7 +88,7 @@ var customModal = React.createClass({
                                         {
                                             id: row.id,
                                             className: 'form-control' ,
-                                            label:row.label,
+                                            label:label,
                                             value:data[row.name],
                                             onChange:this.setValues.bind(this, row.name)
                                         },
@@ -95,7 +102,7 @@ var customModal = React.createClass({
                         id={row.id}
                         name={row.id}
                         type="select"
-                        label={row.label}
+                        label={label}
                         placeholder={row.placeholder?row.placeholder:""}>
                             {row.options.map((opt, i) => {
                                 return <option value={opt.value} key={i}>
@@ -122,19 +129,61 @@ var customModal = React.createClass({
         this.props.onClose(data, this.state);
     },
 
+    isValid: function () {
+        var valid = true;
+        if(this.props.type == 'form'){
+            valid = !this.props.fields.find(function(item){
+                if(item.validate.required){
+                    return data[item.name] == '' ||
+                        data[item.name] == undefined;
+                }else{
+                    return false;
+                }
+            });
+        }
+
+        return valid;
+    },
+
+    showAlert: function(alertText, stateAlert){
+
+        this.setState({
+            showAlert: {
+                text: alertText,
+                state:stateAlert
+            }});
+    },
+
     handleSubmit: function () {
-        this.setState({showModal:false});
-        this.props.onAccept(data, this.state);
+        if(this.isValid()){
+            this.setState({showModal:false});
+            this.props.onAccept(data, this.state);
+        }else{
+            this.showAlert(
+                'Please, fill out all required fields',
+                'danger'
+            );
+        }
     },
 
     render: function() {
         data = [];
+
+        var alert = function(){
+            if(this.state.showAlert){
+                return  (<Alert bsStyle={this.state.showAlert.state}>
+                        {this.state.showAlert.text}
+                    </Alert>);
+            }
+        }.bind(this);
+
         return  (
             <Modal show={this.state.showModal} onHide={this.handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>{this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    {alert()}
                     {this.getBody()}
                 </Modal.Body>
                 <Modal.Footer>
