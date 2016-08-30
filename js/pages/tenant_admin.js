@@ -131,7 +131,8 @@ $('document').ready(function () {
             name:'size',
             label:'Size',
             validate:{
-                required:true
+                required:true,
+                isNumber:true
             }
         },
         {

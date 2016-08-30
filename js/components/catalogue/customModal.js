@@ -5,7 +5,6 @@ var Modal = reactBootstrap.Modal;
 var Button = reactBootstrap.Button;
 var Input = reactBootstrap.Input;
 var Alert = reactBootstrap.Alert;
-var data = [];
 
 /* Custom modal usage
    Properties
@@ -19,7 +18,8 @@ var data = [];
              type:html types (text, number),
              options:[array of select values and labels {value"":,label:""}],
              validate:{
-                required:true/false
+                required:true/false,
+                isNumber:true/false
              }
          }
     onClose:
@@ -37,7 +37,8 @@ var customModal = React.createClass({
     getInitialState: function () {
         return {
             showModal: true,
-            showAlert:false
+            showAlert:false,
+            data:[]
         };
     },
 
@@ -46,13 +47,14 @@ var customModal = React.createClass({
             acceptText:'Ok',
             cancelText:'Cancel',
             title:'Title of the modal',
-            type: null,
-            data:[]
+            type: null
         };
     },
 
-    setValues: function (key, ev){
-        data[key] = ev.target.value;
+    onChange: function( key, event ) {
+        var data = this.state.data;
+        data[key] = event.target.value;
+        this.setState({data: data});
     },
 
     getBody: function(){
@@ -65,8 +67,8 @@ var customModal = React.createClass({
                     return <Input
                                 id={row.id}
                                 label={label}
-                                value={data[row.name]}
-                                onChange={this.setValues.bind(this, row.name)}
+                                value={this.state.data[row.name]}
+                                onChange={this.onChange.bind(this, row.name)}
                                 type={row.type} />;
                     break;
                 case "textarea":
@@ -89,8 +91,8 @@ var customModal = React.createClass({
                                             id: row.id,
                                             className: 'form-control' ,
                                             label:label,
-                                            value:data[row.name],
-                                            onChange:this.setValues.bind(this, row.name)
+                                            value:this.state.data[row.name],
+                                            onChange: this.onChange.bind(this, row.name)
                                         },
                                         ''
                                     )
@@ -124,24 +126,51 @@ var customModal = React.createClass({
         }
     },
 
-    handleClose: function () {
-        this.setState({showModal:false});
-        this.props.onClose(data, this.state);
-    },
-
-    isValid: function () {
-        var valid = true;
-        if(this.props.type == 'form'){
-            valid = !this.props.fields.find(function(item){
+    validateRequiredFields: function(){
+        return !this.props.fields.find(function(item){
                 if(item.validate.required){
-                    return data[item.name] == '' ||
-                        data[item.name] == undefined;
+                    return this.state.data[item.name] == '' ||
+                        this.state.data[item.name] == undefined;
                 }else{
                     return false;
                 }
-            });
-        }
+            }.bind(this));
+    },
 
+    validNumberFields: function(){
+        var valid =  !this.props.fields.find(function(item){
+            if(item.validate.isNumber){
+                return isNaN(this.state.data[item.name]);
+            }else{
+                return false;
+            }
+        }.bind(this));
+
+        return valid;
+    },
+
+    isValid: function () {
+        var valid = false;
+
+        if(this.props.type == 'form') {
+            if (this.validateRequiredFields()) {
+                if (this.validNumberFields()) {
+                    valid = true;
+                } else {
+                    this.showAlert(
+                        'Please, fill out with the correct type of field',
+                        'danger'
+                    );
+                }
+            } else {
+                this.showAlert(
+                    'Please, fill out all required fields',
+                    'danger'
+                );
+            }
+        }else{
+            valid = true;
+        }
         return valid;
     },
 
@@ -151,23 +180,23 @@ var customModal = React.createClass({
             showAlert: {
                 text: alertText,
                 state:stateAlert
-            }});
+            }
+        });
+    },
+
+    handleClose: function () {
+        this.setState({showModal:false, data: []});
+        this.props.onClose(this.state.data, this.state);
     },
 
     handleSubmit: function () {
         if(this.isValid()){
-            this.setState({showModal:false});
-            this.props.onAccept(data, this.state);
-        }else{
-            this.showAlert(
-                'Please, fill out all required fields',
-                'danger'
-            );
+            this.props.onAccept(this.state.data, this.state);
+            this.setState({showModal:false, data: []});
         }
     },
 
     render: function() {
-        data = [];
 
         var alert = function(){
             if(this.state.showAlert){
