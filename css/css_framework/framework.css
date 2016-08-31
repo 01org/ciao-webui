@@ -582,6 +582,7 @@ ul> li> a{
 * Nodes, Instance Module
 */
 .status-ready,
+.status-available,
 .status-active,
 .utilization-low,
 .instance_state-active{
@@ -589,11 +590,13 @@ ul> li> a{
 }
 .status-maintenance,
 .utilization-med,
+.status-in-use,
 .instance_state-starting{
     color: #F3D54E;
 }
 .status-full,
 .utilization-high,
+.status-error,
 .instance_state-stopped{
     color: #FF5573;
 }
