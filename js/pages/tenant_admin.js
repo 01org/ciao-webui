@@ -156,7 +156,6 @@ $('document').ready(function () {
                 node.setAttribute('id',"temp-volume-create-modal");
                 if (!document.getElementById(node.id))
                     document.body.appendChild(node);
-
                 var modalParams = {
                     title: 'Create a Volume',
                     type:'form',
@@ -171,6 +170,7 @@ $('document').ready(function () {
             },
             onDisabled: function () {}
         },
+
         {
             label: 'Delete',
             name: 'Delete',
@@ -185,8 +185,8 @@ $('document').ready(function () {
                         volumeSource.map((i) => {
                             return {value:i.volume_id, label:i.name};
                         }) : [];
-                // TODO: check text format of options, could be more legible
 
+                // TODO: check text format of options, could be more legible
                 // Create modal params for deletion
                 // if 1 or more volume is selected, just confirm
                 // if no volumes are selected trigger modal to select 1 action
@@ -254,14 +254,12 @@ $('document').ready(function () {
                     cancelText: "Cancel",
                     acceptText: "Delete"
                 };
-
-                console.log('modalParams', modalParams);
-
                 ReactDOM.render(<CustomModal {...modalParams} />,
                                 document.getElementById('temp-volume-modal'));
             },
             onDisabled: function () {}
         },
+
         {
             label: 'Attach',
             name: 'Attach',
@@ -270,7 +268,6 @@ $('document').ready(function () {
                 node.setAttribute('id',"temp-volume-modal");
                 if (!document.getElementById("temp-volume-modal"))
                     document.body.appendChild(node);
-
                 // Get instance list from datamanager available sources
                 var instanceSource = datamanager.sources['instances-host'].data;
                 var instanceList =  instanceSource ?
@@ -309,7 +306,7 @@ $('document').ready(function () {
                         }
                                 ],
                     onAccept: function (params) {
-                        
+
                         var vol_id = document
                                 .getElementById("attach_volume_id").value;
                         var server_id = document
@@ -333,7 +330,79 @@ $('document').ready(function () {
                     cancelText: "Cancel",
                     acceptText: "Attach"
                 };
+                ReactDOM.render(<CustomModal {...modalParams} />,
+                                document.getElementById('temp-volume-modal'));
+            },
+            onDisabled: function () {}
+        },
 
+        {
+            label: 'Detach',
+            name: 'Detach',
+            onClick: function (props, state) {
+                var node = document.createElement("div");
+                node.setAttribute('id',"temp-volume-modal");
+                if (!document.getElementById("temp-volume-modal"))
+                    document.body.appendChild(node);
+
+                //get volume list from datamanager available sources
+                var volumeSource = datamanager.sources[volumeComponent].data;
+                var volumeList = [];
+                if (volumeSource) {
+                    // COMPUTE API v2.1:only volumes with status 'in-use'
+                    // can be detached
+                    volumeList = volumeSource
+                        .filter((h) => h.status === 'in-use')
+                        .map((i) => {
+                            return {value:i.volume_id,
+                                    label:i.name};
+                        });
+                }
+                // TODO: check text format of options, could be more legible
+                var modalParams = {
+                    title: "Attach Instance",
+                    type: "form",
+                    fields: [
+                        {
+                            id: "detach_volume_id",
+                            name: "volume_id",
+                            label: "Select Volume",
+                            field: "select",
+                            options: volumeList,
+                            validate:{
+                                required:false
+                            }
+                        }
+                                ],
+                    onAccept: function (params) {
+
+                        var vol_id = document
+                                .getElementById("detach_volume_id").value;
+                        var volumeList = datamanager
+                                .sources[volumeComponent].rawData.volumes
+                                .filter((h) => h.status === 'in-use');
+                        // TODO: this detach system only works if volume
+                        // is attached to a single instance. as it detaches only
+                        // the first attachment. Look for better implementation
+                        var server_id = volumeList
+                                .filter((i) => vol_id === i.id)[0]
+                                .attachments[0]['server_id'];
+                        $.ajax({
+                            type: 'DELETE',
+                            url: '/data/' +
+                                datamanager.data.activeTenant.id
+                                + '/servers/' + server_id
+                                + '/os-volume_attachments'
+                                + '/' + vol_id
+                        })
+                            .done((data) => console.log(data))
+                            .fail((data) => console.log(data));
+                        document.getElementById(node.id).remove();
+                    },
+                    onClose: () => document.getElementById(node.id).remove(),
+                    cancelText: "Cancel",
+                    acceptText: "Detach volume"
+                };
                 ReactDOM.render(<CustomModal {...modalParams} />,
                                 document.getElementById('temp-volume-modal'));
             },
@@ -358,7 +427,8 @@ $('document').ready(function () {
                     };
                 });
                 datamanager.setDataSource('block-catalogue', {
-                    data: fmtData
+                    data: fmtData,
+                    rawData: data
                 });
             }).fail(function (err) {
                 callback();

@@ -354,7 +354,7 @@ tenantService.prototype.detachVolume = function () {
             var token = (t)?t:req.session.token;
             var uri = "/v2.1/" + req.params.tenant +
                     "/servers/"+req.params.server + "/os-volume_attachments"
-                    + req.params.attachment_id;
+                    + '/' +req.params.attachment_id;
             var data = adapter.onSuccess(() => {
                 console.log(data);
                 res.send(data.json);
