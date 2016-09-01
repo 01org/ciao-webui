@@ -345,5 +345,32 @@ tenantService.prototype.attachVolume = function () {
     };
 };
 
+// detach volume from instance
+tenantService.prototype.detachVolume = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        tokenManager.onSuccess((t) => {
+            var token = (t)?t:req.session.token;
+            var uri = "/v2.1/" + req.params.tenant +
+                    "/servers/"+req.params.server + "/os-volume_attachments"
+                    + req.params.attachment_id;
+            var data = adapter.onSuccess(() => {
+                console.log(data);
+                res.send(data.json);
+            })
+                    .onError(() => {
+                        console.log('ERROR:',data);
+                        res.send(data);
+                    })
+                    .delete(uri,
+                          token);
+        }
+                              )
+            .validate(req, res);
+    };
+
+};
+
 
 module.exports = tenantService;

@@ -57,6 +57,12 @@ router.post('/:tenant/servers/:server/os-volume_attachments',
 router.post('/:tenant/servers/:server/action',
             tenantService.postServerAction());
 
+// Tenant service DELETE Methods
+router.delete('/:tenant/servers/:server/os-volume_attachments/:attachment_id',
+              tenantService.detachVolume());
+
+// Tenant service GET Methods
+
 router.get('/:tenant/servers/detail/count', tenantService.serversDetailCount());
 router.get('/:tenant/servers/detail', tenantService.serversDetail());
 router.get('/:tenant/servers/:server', tenantService.getServer());
