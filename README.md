@@ -25,7 +25,7 @@ information of the ciao-controller and keystone servers the Web UI is
 going to connect to.
 The root of the ciao_config.json is the "environment", and should match
 the NODE_ENV environment variable. Then the parameters **controller**,
-**keystone** and **ui** will follow.
+**storage**, **keystone** and **ui** will follow.
 Note: an alternate configuration file may be used by running npm start with a
 config_file parameter.
 
@@ -43,6 +43,11 @@ Refers to the ciao-controller that the Web UI will connect to, it has the follow
 2. port - port in which keystone's services are reachable.
 3. protocol - lowercase protocol that keystone uses to provide it's services (http and https are supported).
 4. uri - The uri in which keystone will provide tokens. (this should be "/v3/auth/tokens").
+
+######storage
+1. host - may be the hostname or ip address of block storage services provider (ciao-controller or cinder) (Ex. 127.0.0.1)
+2. port - port in which block storage services are reachable.
+3. protocol - lowercase protocol that block storage API uses to provide it's services (http and https are supported).
 
 ######ui
 The following fields will determine how the Ciao Web UI will beconfigured.
