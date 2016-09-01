@@ -65,6 +65,18 @@ tenantService.prototype.serversDetail = function () {
                         res.send(servers
                                  .map((value) => {
                                      var image = value.image.id;
+                                     var mapStatus = (x) => {
+                                         var m = x;
+                                         switch (x) {
+                                         case 'ACTIVE':
+                                             m = 'active';
+                                             break;
+                                         case 'SHUTOFF':
+                                             m = 'stopped';
+                                             break;
+                                         };
+                                         return m;
+                                     };
                                      var address = value.addresses.private ?
                                              value.addresses.private[0]
                                              :value.addresses.public ?
@@ -72,7 +84,7 @@ tenantService.prototype.serversDetail = function () {
                                          :'none';
                                      return {
                                          "id": value.id,
-                                         "status": value.status,
+                                         "status": mapStatus(value.status),
                                          "Node ID": value.hostId,
                                          "IP Address": address.addr,
                                          "MAC address":address[
@@ -276,10 +288,11 @@ tenantService.prototype.postServersAction = function () {
             var d = {};
             d["action"] = req.body.action;
             d["status"] = req.body.status;
-            var data = adapter.post(uri,
-                                    d,
-                                    token,
-                                    () => res.send(data.raw));
+            var data = adapter.onSuccess(() => res.send(data.raw))
+                    .onError((err) => res.send(err))
+                    .post(uri,
+                          d,
+                          token);
         }
                               )
             .validate(req, res);
@@ -298,14 +311,16 @@ tenantService.prototype.postServerAction = function () {
             // "-os-start":
             // "-os-stop"
             var d = {};
-            d["server"] = req.body.server;
-            d[req.body.action] = req.body.action;
-            var data = adapter.post(uri,
-                                    d,
-                                    token,
-                                    () => res.send(data.json));
-        }
-                              )
+            d[req.body.action] = null;
+//            d["server"] = req.body.server;
+//            d[req.body.action] = req.body.action;
+            console.log(d);
+            var data = adapter.onSuccess(() => res.send(data.raw))
+                    .onError((err) => res.send(err))
+                    .post(uri,
+                          d,
+                          token);
+        })
             .validate(req, res);
     };
 };

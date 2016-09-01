@@ -464,8 +464,7 @@ $('document').ready(function () {
         ReactDOM.render(<Catalogue {...sourceData}/>,
                         document.getElementById('block-catalogue'));
     });
-    setTimeout(() => datamanager.setDataSource('block-catalogue', {data:[]})
-               ,1500);
+    datamanager.setDataSource('block-catalogue', {data:[]});
 
     // Ends block storage volume table
 
