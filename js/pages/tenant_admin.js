@@ -419,10 +419,10 @@ $('document').ready(function () {
                 var fmtData = data.volumes.map((x) => {
                     return {
                         "volume_id":x.id,
+                        "status":x.status,
                         "name":x.name,
                         "Size":new String(x.size," Gb"),
                         "Description":x.description,
-                        "status":x.status,
                         "bootable":x.bootable
                     };
                 });
