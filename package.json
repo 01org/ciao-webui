@@ -33,6 +33,7 @@
     "node-uuid": "https://github.com/broofa/node-uuid#v1.4.7",
     "react": "^0.14.8",
     "react-bootstrap": "^v0.28.3",
+    "react-select": "^1.0.0-rc.2",
     "react-dom": "^0.14.8",
     "react-faux-dom": "https://github.com/Olical/react-faux-dom#v2.4.0",
     "serve-favicon": "https://github.com/expressjs/serve-favicon#v2.3.0"

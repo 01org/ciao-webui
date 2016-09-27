@@ -64,6 +64,8 @@ match="</title>"
 # * "files" *
 bootstrap="$cssStart/bootstrap/dist/css/bootstrap.min.css$cssEnd"
 framework="$cssStart/stylesheets/framework.css$cssEnd"
+jquerychosencss="$cssStart/stylesheets/chosen.css$cssEnd"
+jquerychosen="$jsStart/javascripts/chosen.jquery.js$jsEnd"
 d3="$cssStart/stylesheets/d3Framework.css$cssEnd"
 jquery="$jsStart/jquery/dist/jquery.js$jsEnd"
 jqueryui="$jsStart/jquery-ui/jquery-ui.js$jsEnd"
@@ -72,7 +74,7 @@ loadDatamanager="<script type='text/javascript'>window.datamanager.loadData((<%-
 validations="$jsStart/util/validations.js$jsEnd"
 # Delete .bak (this is just for mac)
 # Replace \\ for \n (this is just for mac)
-sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
+sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$jquerychosencss\\$jquerychosen\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
 
 
 # Run build scripts

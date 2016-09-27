@@ -5,6 +5,7 @@ var Modal = reactBootstrap.Modal;
 var Button = reactBootstrap.Button;
 var Input = reactBootstrap.Input;
 var Alert = reactBootstrap.Alert;
+var Select = require('react-select');
 
 /* Custom modal usage
    Properties
@@ -100,18 +101,14 @@ var customModal = React.createClass({
                             );
                     break;
                 case "select":
-                    return <Input
-                        id={row.id}
-                        name={row.id}
-                        type="select"
-                        label={label}
-                        placeholder={row.placeholder?row.placeholder:""}>
-                            {row.options.map((opt, i) => {
-                                return <option value={opt.value} key={i}>
-                                    {opt.label}
-                                </option>;})
-                            }
-                    </Input>;
+                    return <Select
+                            id={row.id}
+                            label={label}
+                            value={this.state.value}
+                            placeholder='Select all'
+                            options={row.options}
+                            />;
+
                     break;
                 default:
                     return React.createElement(
