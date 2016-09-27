@@ -16,6 +16,8 @@ framework="$(cssStart)/stylesheets/framework.css$(cssEnd)"
 d3="$(cssStart)/stylesheets/d3Framework.css$(cssEnd)"
 jquery="$(jsStart)/jquery/dist/jquery.js$(jsEnd)"
 jqueryui="$(jsStart)/jquery-ui/jquery-ui.js$(jsEnd)"
+jquerychosencss="$(cssStart)/stylesheets/chosen.css$(cssEnd)"
+jquerychosen="$(jsStart)/javascripts/chosen.jquery.js$(jsEnd)"
 datamanager="$(jsStart)/data/dataManager.js$(jsEnd)"
 loadDatamanager="<script type='text/javascript'>window.datamanager.loadData\(\(<%- JSON.stringify\(data\)%>\)\);</script>"
 validations="$(jsStart)/javascripts/library/validations.js$(jsEnd)"
@@ -29,7 +31,7 @@ install:
 	-cp css/d3_components/d3Framework.css build/stylesheets
 	-cp -r vendor/* node_modules/
 	-cp js/util/*.js public/javascripts/library/
-	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\$(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
+	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(jquerychosencss))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\$(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
 	-mkdir -p $(DESTDIR)/ciao-webui/
 	-mkdir -p $(DESTDIR)/share/ciao-webui
 	-cp config/ciao_config.json $(DESTDIR)/share/ciao-webui/
@@ -71,7 +73,7 @@ install-dev:
 	-cp css/css_framework/* public/stylesheets/
 	-cp css/d3_components/d3Framework.css public/stylesheets/
 	-cp js/util/*.js public/javascripts/library/
-	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\$(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
+	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(jquerychosencss))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\$(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
 	-mkdir -p $(DESTDIR)/ciao-webui/
 	-mkdir -p $(DESTDIR)/share/ciao-webui
 	-cp config/ciao_config.json $(DESTDIR)/share/ciao-webui/
