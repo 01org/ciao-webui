@@ -7,7 +7,8 @@ var config = {
     title: 'CIAO',
     page: 'pages/tenant.ejs',
     scripts: [
-        '/javascripts/bundle_tenant_admin.js'
+        '/javascripts/bundle_tenant_admin.js',
+        '/util/chosen.jquery.js'
     ],
     data: {
         title: 'CIAO',
