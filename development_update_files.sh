@@ -58,8 +58,9 @@ framework="$cssStart/stylesheets/framework.css$cssEnd"
 d3="$cssStart/stylesheets/d3Framework.css$cssEnd"
 jquery="$jsStart/javascripts/library/jquery.js$jsEnd"
 jqueryui="$jsStart/javascripts/library/jquery-ui.js$jsEnd"
+jquerychosencss="$(cssStart)/stylesheets/chosen.css$(cssEnd)"
 datamanager="$jsStart/javascripts/datamanager.js$jsEnd"
 loadDatamanager="<script type='text/javascript'> window.datamanager.loadData((<%- JSON.stringify(data)%>)); </script>"
 # Delete .bak (this is just for mac)
 # Replace \\ for \n (this is just for mac)
-sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager~" views/$file
+sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$jquerychosencss\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager~" views/$file

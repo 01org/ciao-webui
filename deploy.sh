@@ -28,6 +28,7 @@ cp js/util/validations.js public/javascripts/library/validations.js
 mkdir -p build/stylesheets
 
 cp css/css_framework/framework.css build/stylesheets
+cp css/css_framework/chosen.css build/stylesheets
 cp css/d3_components/d3Framework.css build/stylesheets
 
 # Insert the css files and the js files (from library) into env_template.ejs
@@ -41,6 +42,7 @@ match="</title>"
 # * "files" *
 bootstrap="$cssStart/bootstrap/dist/css/bootstrap.min.css$cssEnd"
 framework="$cssStart/stylesheets/framework.css$cssEnd"
+chosen="$cssStart/stylesheets/chosen.css$cssEnd"
 d3="$cssStart/stylesheets/d3Framework.css$cssEnd"
 jquery="$jsStart/jquery/dist/jquery.js$jsEnd"
 jqueryui="$jsStart/jquery-ui/jquery-ui.js$jsEnd"
@@ -49,6 +51,6 @@ loadDatamanager="<script type='text/javascript'>window.datamanager.loadData((<%-
 validations="$jsStart/javascripts/library/validations.js$jsEnd"
 # Delete .bak (this is just for mac)
 # Replace \\ for \n (this is just for mac)
-sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
+sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$chosen\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
 
 npm start -- "$@"
