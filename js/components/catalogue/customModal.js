@@ -5,6 +5,7 @@ var Modal = reactBootstrap.Modal;
 var Button = reactBootstrap.Button;
 var Input = reactBootstrap.Input;
 var Alert = reactBootstrap.Alert;
+var Select = require('react-select');
 
 /* Custom modal usage
    Properties
@@ -40,6 +41,7 @@ var customModal = React.createClass({
             showModal: true,
             showAlert:false,
             data:[]
+
         };
     },
 
@@ -52,11 +54,17 @@ var customModal = React.createClass({
         };
     },
 
-    onChange: function( key, event ) {
+    onChange: function( key, type, event ) {
 
         if(event){
             var data = this.state.data;
-            data[key] = (event.target)?event.target.value:event.value;
+
+            if(type == 'checkbox'){
+                data[key] = event.target.checked;
+            }else{
+                data[key] = (event.target)?event.target.value:event.value;
+            }
+
             this.setState({data: data});
         }else{
             var data = this.state.data;
@@ -66,71 +74,98 @@ var customModal = React.createClass({
 
     },
 
+    getField: function(row){
+
+       // console.log('row', row);
+
+        var label = (row.validate.required)?row.label + '*':row.label;
+        switch(row.field) {
+            case "input":
+                return <Input
+                id={row.id}
+                label={label}
+                value={this.state.data[row.name]}
+                onChange={this.onChange.bind(this, row.name, row.type)}
+                type={row.type} />;
+            break;
+            case "textarea":
+                return React.createElement(
+                  'div',
+                  null,
+                  React.createElement(
+                    'div',
+                    { className: 'form-group' },
+                  <label class="control-label" >
+                  {row.label}
+                </label>
+                ),
+                React.createElement(
+                  'div',
+                  { className: 'form-group' },
+                  React.createElement(
+                    'textarea',
+                    {
+                        id: row.id,
+                        className: 'form-control' ,
+                        label:label,
+                        value:this.state.data[row.name],
+                        onChange: this.onChange.bind(this, row.name, row.type)
+
+                    },
+                    ''
+                  )
+                )
+                );
+            break;
+            case "select":
+                return <Select
+                id={row.id}
+
+                name={row.name}
+                label={label}
+                value={this.state.data[row.name]}
+                placeholder={row.placeholder?row.placeholder:label}
+                onChange={this.onChange.bind(this, row.name, row.type)}
+                options={row.options}
+                />;
+
+            break;
+            default:
+                return React.createElement(
+                    'p', {},'field not implemented'
+                );
+        }
+    },
+
     getBody: function(){
         if(this.props.type == 'form'){
             return this.props.fields.map((row, i) => {
 
-                var label = (row.validate.required)?row.label + '*':row.label;
-                switch(row.field) {
-                case "input":
-                    return <Input
-                                id={row.id}
-                                label={label}
-                                value={this.state.data[row.name]}
-                                onChange={this.onChange.bind(this, row.name)}
-                                type={row.type} />;
-                    break;
-                case "textarea":
-                    return React.createElement(
-                                'div',
-                                null,
-                                React.createElement(
-                                    'div',
-                                    { className: 'form-group' },
-                                    <label class="control-label" >
-                                        {row.label}
-                                    </label>
-                                ),
-                                React.createElement(
-                                    'div',
-                                    { className: 'form-group' },
-                                    React.createElement(
-                                        'textarea',
-                                        {
-                                          id: row.id,
-                                          className: 'form-control' ,
-                                          label:label,
-                                          value:this.state.data[row.name],
-                                          onChange: this.onChange.bind(this, row.name)
-                                        },
-                                        ''
-                                    )
-                                )
-                            );
-                    break;
-                case "select":
-                    return <Select
-                            id={row.id}
-                            name={row.id}
-                            label={label}
-                            value={this.state.data[row.name]}
-                            placeholder={row.placeholder?row.placeholder:""}
-                            onChange={this.onChange.bind(this, row.name)}
-                            options={row.options}
-                            />;
+                if(this.props.conditions &&
+                    this.props.conditions[row.name]){
+                    var fieldCond = this.props.conditions[row.name];
 
-                    break;
-                default:
-                    return React.createElement(
-                        'p', {},'field not implemented'
-                    );
+                    if(fieldCond){
+
+                        if(this.state.data[fieldCond] ){
+                            return this.getField(row);
+                        }else{
+                            return null;
+                        }
+                    }else{
+                        return this.getField(row);
+                    }
+                }else{
+                    return this.getField(row);
                 }
+            
             });
         }else{
             return React.createElement(
-                'p', {},this.props.body
+              'p', {},this.props.body
             );
         }
+
     },
     //Return true if the field is empty
     isEmpty: function(field){
@@ -214,7 +249,7 @@ var customModal = React.createClass({
 
     handleSubmit: function () {
         if(this.isValid()){
-            this.props.onAccept(this.state.data, this.state);
+            this.props.onAccept(this.state.data);
             this.setState({showModal:false, data: []});
         }
     },
