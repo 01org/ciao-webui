@@ -74,7 +74,7 @@ install-dev:
 	-cp css/css_framework/* public/stylesheets/
 	-cp css/d3_components/d3Framework.css public/stylesheets/
 	-cp js/util/*.js public/javascripts/library/
-	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(chosen))\\$(subst $\",,$(chosen))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\$(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
+	sed -i.bak "s~$(subst $\",,$(match))~$(subst $\",,$(match))\\$(bootstrap)\\$(subst $\",,$(framework))\\$(subst $\",,$(chosen))\\$(subst $\",,$(chosen))\\$(subst $\",,$(d3))\\ $(subst $\",,$(jquery))\\ $(subst $\",,$(jquerychosen))\\ $(subst $\",,$(jqueryui))\\$(subst $\",,$(datamanager))\\$(subst $\",,$(datamanager))$(subst $\",,$(datamanager))    jquerychosen $(subst $\",,$(loadDatamanager))\\ $(subst $\",,$(validations))~" views/$(subst $\",,$(file))
 	-mkdir -p $(DESTDIR)/ciao-webui/
 	-mkdir -p $(DESTDIR)/share/ciao-webui
 	-cp config/ciao_config.json $(DESTDIR)/share/ciao-webui/

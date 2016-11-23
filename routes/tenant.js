@@ -84,7 +84,8 @@ var usageConfig = {
     title: 'Tenant detailed view',
     page: 'pages/tenant_usage.ejs',
     scripts: [
-        '/javascripts/bundle_tenant_usage_detail.js'
+        '/javascripts/bundle_tenant_usage_detail.js',
+        '/util/chosen.jquery.js'
     ],
     data: {
         title: 'CIAO',
@@ -109,7 +110,8 @@ var groupConfig = {
     title: 'Tenant detailed group view',
     page: 'pages/tenant_group.ejs',
     scripts: [
-        '/javascripts/bundle_tenant_group.js'
+        '/javascripts/bundle_tenant_group.js',
+        '/util/chosen.jquery.js'
     ],
     data: {
         title: 'CIAO',
