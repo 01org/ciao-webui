@@ -42,6 +42,7 @@ match="</title>"
 bootstrap="$cssStart/bootstrap/dist/css/bootstrap.min.css$cssEnd"
 framework="$cssStart/stylesheets/framework.css$cssEnd"
 d3="$cssStart/stylesheets/d3Framework.css$cssEnd"
+chosen="$cssStart/stylesheets/chosen.css$cssEnd"
 jquery="$jsStart/jquery/dist/jquery.js$jsEnd"
 jqueryui="$jsStart/jquery-ui/jquery-ui.js$jsEnd"
 datamanager="$jsStart/data/dataManager.js$jsEnd"
@@ -49,6 +50,6 @@ loadDatamanager="<script type='text/javascript'>window.datamanager.loadData((<%-
 validations="$jsStart/javascripts/library/validations.js$jsEnd"
 # Delete .bak (this is just for mac)
 # Replace \\ for \n (this is just for mac)
-sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
+sed -i.bak "s~$match~$match\\$bootstrap\\$framework\\$d3\\$chosen\\$jquery\\$jqueryui\\$datamanager\\$loadDatamanager\\$validations~" views/$file
 
 npm start -- "$@"

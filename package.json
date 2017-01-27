@@ -35,6 +35,7 @@
     "react-bootstrap": "^v0.28.3",
     "react-dom": "^0.14.8",
     "react-faux-dom": "https://github.com/Olical/react-faux-dom#v2.4.0",
+    "react-select": "^1.0.0-rc.2",
     "serve-favicon": "https://github.com/expressjs/serve-favicon#v2.3.0"
   },
   "devDependencies": {
