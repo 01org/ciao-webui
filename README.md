@@ -31,25 +31,25 @@ config_file parameter.
 
 ....npm start -- config_file="Path to configuration file"
 
-######controller
+###### controller
 
 Refers to the ciao-controller that the Web UI will connect to, it has the following parameters:
 1. host - may be the hostname or ip address of ciao-controller (Ex. 127.0.0.1)
 2. port - port in which the ciao-controller services are reachable.
 3. protocol - lowercase protocol used by ciao-controller (currently only https is supported).
 
-######keystone
+###### keystone
 1. host - may be the hostname or ip address of ciao-controller (Ex. 127.0.0.1)
 2. port - port in which keystone's services are reachable.
 3. protocol - lowercase protocol that keystone uses to provide it's services (http and https are supported).
 4. uri - The uri in which keystone will provide tokens. (this should be "/v3/auth/tokens").
 
-######storage
+###### storage
 1. host - may be the hostname or ip address of block storage services provider (ciao-controller or cinder) (Ex. 127.0.0.1)
 2. port - port in which block storage services are reachable.
 3. protocol - lowercase protocol that block storage API uses to provide it's services (http and https are supported).
 
-######ui
+###### ui
 The following fields will determine how the Ciao Web UI will beconfigured.
 
     Note: if https protocol is set on ui options, Web UI will require a signed ssl certificate
@@ -57,8 +57,6 @@ The following fields will determine how the Ciao Web UI will beconfigured.
     A self-signed certificate may be generated using the following command:
     
     openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365
-    
-    
 
 1. protocol - the protocol that the Web UI will use to run, this can be http or https. 
    If the protocol used is http, then certificates field isn't required.
