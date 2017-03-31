@@ -53,6 +53,33 @@ var addPool = React.createClass({
     };
   },
 
+  addPool: function (data) {
+      datamanager.trigger('add-pool');
+
+      var tenantId = datamanager.data.activeTenant.id;
+      var body = {
+          "name": data.pool.name,
+          "Subent": data.pool.subnet,
+          "ips": data.pool.ips,
+          "ip":data.ip
+      };
+
+      $.post({
+          url:"/data/pools",
+          data:body
+      })
+      .done(function (success) {
+          console.log('success', success);
+      })
+      .fail(function (err) {
+          console.log('err', err);
+          if (this.props.logger != null) {
+              this.props.logger.error(err.responseJSON.title,
+                                      err.responseJSON.message);
+          }
+      });
+  },
+
   minus: function (){
 
     var ips = (this.state.data.number_ips == null)
@@ -82,42 +109,42 @@ var addPool = React.createClass({
     });
 },
 
-  addSubnet: function(){
-    //Add subnet
-    console.log('datarrrrrrr', this.state.data);
-  },
+addSubnet: function(){
+  //Add subnet
+  console.log('datarrrrrrr', this.state.data);
+},
 
-  addIP: function(){
-    //Add subnet
-    console.log('datarrrrrrr', this.state.data);
+addIP: function(){
+  //Add subnet
+  console.log('datarrrrrrr', this.state.data);
 
-  },
+},
 
-  getSubnetTableConfiguration: function(){
-    return {
-      selectActions: [
-            {
-              label:'Select all available',
-              string:"select_available",
-              query:{"status":"available"}
-            },
-            {
-              label:'Select none',
-              string:"select_none",
-              query:{"none":"none"}
-            }
-      ],
-      columns: ['Subnet ID'],
-      title: 'Added Subnets',
-      noData: 'No added Subnets',
-      refresh: Number(32000),
-      recordsPerPage: 10,
-      id: 'subnet_cidr',
-      search: {hide:true},
-      catalogueClass: 'catalogue-ligth',
-      source: '/data/' + datamanager.data.activeTenant.id
+getSubnetTableConfiguration: function(){
+  return {
+    selectActions: [
+          {
+            label:'Select all available',
+            string:"select_available",
+            query:{"status":"available"}
+          },
+          {
+            label:'Select none',
+            string:"select_none",
+            query:{"none":"none"}
+          }
+    ],
+    columns: ['Subnet ID'],
+    title: 'Added Subnets',
+    noData: 'No added Subnets',
+    refresh: Number(32000),
+    recordsPerPage: 10,
+    id: 'subnet_cidr',
+    search: {hide:true},
+    catalogueClass: 'catalogue-ligth',
+    source: '/data/' + datamanager.data.activeTenant.id
             + '/volumes/detail',
-      onMount: function(){},
+    onMount: function(){},
       actions: [
         {
             label: 'Remove',
@@ -131,6 +158,7 @@ var addPool = React.createClass({
       ]
     }
   },
+
   getIpTableConfiguration: function(){
     return {
       selectActions: [],
