@@ -4,235 +4,496 @@ var ReactBootstrap = require('react-bootstrap');
 var Button = ReactBootstrap.Button;
 var Input = ReactBootstrap.Input;
 
-
 var Grid = ReactBootstrap.Grid,
     Row = ReactBootstrap.Row,
-    Col = ReactBootstrap.Col;
+    Col = ReactBootstrap.Col,
+   Table = ReactBootstrap.Table,
+   Alert = ReactBootstrap.Alert;
 
-
-var Catalogue = require('../components/catalogue/catalogue.js');
-var Table = require('../components/catalogue/customTable.js');
-var ResumePanel = require('../components/resumePanel.js');
-var Form = require('../components/form/form.js');
+var InputElement = require('react-input-mask')
 
 var $ = require('jquery');
 
 var addPool = React.createClass({
   displayName: 'addPool',
+  subnet:'',
+
+  getDefaultProps: function () {
+    return {
+      logger: null
+    };
+  },
+
+  getInitialState: function () {
+    return {
+      status:'creating', //Current state (creating/editing)
+      generalError:'',//Error while creating a pool,
+      createdPool:{},//Pool that has been created
+      subnets:[{'id':'192.168.1.1'}],
+      ips:[{'id':'192.168.1.3'}, {'id':'192.168.1.4'}, {'id':'192.168.1.5'}],
+      selectedRows:[], //ips selected
+      // <all> All ips are selecte, <none> none ip is selected
+      selectStatus:null,
+      errorMessageIP:'',//error message when adding an ip
+      validIP:true,//flag to determine if a ip is valid
+      pool:{ //Pool to create
+        name:'',
+        subnet:'',
+        preSubnet:'###.##.#.',
+        ip:'',
+        ips:[],
+        number_ips:1
+      }
+    };
+  },
 
   handleChange: function(event) {
     const target = event.target;
     const value = target.value;
     const name = target.name;
 
-    var data = this.state.data;
+    var data = this.state.pool;
     data[target.name] = value;
-    this.setState({
-      'data': data
-    });
-  },
 
-  getDefaultProps: function () {
-    return {
-      logger: null,
-      subnets:[]
-    };
-  },
+    if(target.name == 'subnet'){
+      if(value != '___.___.___.___'){//subnet is not empty
+        var subnetArray = value.split('.');
+        var tmpSubnet = '';
 
-  getInitialState: function () {
-    return {
-      showSubnetList:true,
-      showIpList:false,
-      selectedSubnets:[],
-      selectedResumeSubnets:[],
-      data:{
-        pool_name:'[Name]',
-        number_subnets:null,
-        number_ips:null
+        subnetArray.forEach(function(element, index){
+          if(index < 3){
+            tmpSubnet = tmpSubnet + element + '.';
+          }
+        })
+        data['preSubnet'] = tmpSubnet.replace(/_/g, '');
       }
-    };
-  },
-
-  addPool: function (data) {
-      datamanager.trigger('add-pool');
-
-      var tenantId = datamanager.data.activeTenant.id;
-      var body = {
-          "name": data.pool.name,
-          "Subent": data.pool.subnet,
-          "ips": data.pool.ips,
-          "ip":data.ip
-      };
-
-      $.post({
-          url:"/data/pools",
-          data:body
-      })
-      .done(function (success) {
-          console.log('success', success);
-      })
-      .fail(function (err) {
-          console.log('err', err);
-          if (this.props.logger != null) {
-              this.props.logger.error(err.responseJSON.title,
-                                      err.responseJSON.message);
-          }
-      });
-  },
-
-  minus: function (){
-
-    var ips = (this.state.data.number_ips == null)
-          ?0:this.state.data.number_ips;
-
-    if(this.state.data.number_ips > 0 ){
-      ips = parseInt(ips) - 1;
-
-      var data = this.state.data;
-      data['number_ips'] = ips;
-      this.setState({
-        'data': data
-      });
     }
 
-  },
+    if(target.name == 'ip'){//validate is a correct ip
+      this.validateIP(value)
+    }
 
-  plus: function (){
-
-    var ips = (this.state.data.number_ips == null)
-              ?0:this.state.data.number_ips;
-    ips = parseInt(ips) + 1;
-    var data = this.state.data;
-    data['number_ips'] = ips;
     this.setState({
-      'data': data
+      'pool': data
     });
-},
+  },
 
-addSubnet: function(){
-  //Add subnet
-  console.log('datarrrrrrr', this.state.data);
-},
+  /*
+  * Validate IP is valid
+  * IP is not equal an exsting ip
+  * IP is not equal to the subnet
+  * IP is not bigger than 255
+  * IP is not zero
+  */
+  validateIP: function(value){
 
-addIP: function(){
-  //Add subnet
-  console.log('datarrrrrrr', this.state.data);
+    var errorMessage = '';
 
-},
+    if(value == 0){
+      errorMessage = 'IP can not be empty or zero';
+    }
 
-getSubnetTableConfiguration: function(){
-  return {
-    selectActions: [
-          {
-            label:'Select all available',
-            string:"select_available",
-            query:{"status":"available"}
-          },
-          {
-            label:'Select none',
-            string:"select_none",
-            query:{"none":"none"}
-          }
-    ],
-    columns: ['Subnet ID'],
-    title: 'Added Subnets',
-    noData: 'No added Subnets',
-    refresh: Number(32000),
-    recordsPerPage: 10,
-    id: 'subnet_cidr',
-    search: {hide:true},
-    catalogueClass: 'catalogue-ligth',
-    source: '/data/' + datamanager.data.activeTenant.id
-            + '/volumes/detail',
-    onMount: function(){},
-      actions: [
-        {
-            label: 'Remove',
-            name: 'Remove',
-            onClick: function (props, state) {
-                ReactDOM.render(<CustomModal {...modalParams} />,
-                document.getElementById('temp-volume-create-modal'));
-            },
-            onDisabled: function () {}
-        }
-      ]
+    if(!errorMessage && value > 255){
+      errorMessage = 'IP can not be bigger than 255';
+    }
+
+    if(errorMessage != ''){
+      this.setState({
+        'errorMessageIP': errorMessage,
+        validIP:false
+      });
+    }else{
+      this.setState({
+        'errorMessageIP': '',
+        validIP:true
+      });
+    }
+
+  },
+
+  //Add new ip
+  addIP: function(){
+    var actualPool = this.state.pool;
+    var newIP = this.state.pool.preSubnet + this.state.pool.ip;
+    actualPool.ips.push(newIP);
+    actualPool.ip = '';
+
+    this.setState({
+      'pool': actualPool
+    });
+  },
+
+  //Receive a list of pool and a name
+  //Retrieve the pool filtering by name
+  getPool: function(pools, name){
+    return pools.find(function (pool) {
+        return pool['name'] == name;
+    });
+  },
+
+  addPool: function () {
+
+    var poolToCreate = this.state.pool;
+    var ip = poolToCreate.ips[0];
+    //poolToCreate.ips.shift();
+    poolToCreate.ips = poolToCreate.ips.map(function(ip){
+        return {'ip':ip}
+    })
+
+    var body = {
+          "name": poolToCreate.name,
+          "Subent": poolToCreate.subnet.replace(/_/g, ''),
+          "ips": JSON.stringify( poolToCreate.ips ),
+          "ip":ip
+    };
+
+    console.log('body', body);
+    //TODO: Apply waterfall
+    $.post({
+        url:"/data/pools",
+        data:body
+    })
+    .done(function (pool) {
+
+      if(pool.error == '204'){//success
+        $.get({url:"/data/pools/"}) //Obtain all pools
+        .done(function (pools) {
+          //search and set (just created) pool
+          var pool = this.getPool(pools.pools, this.state.pool.name);
+
+          $.get({url:"/data/pools/" + pool.id}) //Get all th infor of the pool
+            .done(function (pool) {
+
+              console.log('pool', pool);
+
+              this.setState({
+                'status':'editing',
+                'createdPool': pool,
+                ips:pool.ips,
+                subnets:pool.ips,
+                'generalError':''
+              })
+
+            }.bind(this))
+            .fail(function (err) {
+              console.log('error', err);
+              this.setState({
+                'generalError':err
+              })
+            })
+
+        }.bind(this))
+        .fail(function (err) {
+          console.log('error', err);
+          this.setState({
+            'generalError':err
+          })
+        })
+      }else{
+        this.setState({
+          'generalError':'The named pool "'+ this.state.pool.name
+          +'" could not be created. Please verify your information'
+        })
+      }
+
+
+    }.bind(this))
+    .fail(function (err) {
+      console.log('err', err);
+      //Show message error
+    });
+  },
+
+  disabledAddIPButton: function(){
+    if(this.state.pool.ip != '' && this.state.validIP){
+      return false;
+    }else{
+      return true;
     }
   },
 
-  getIpTableConfiguration: function(){
-    return {
-      selectActions: [],
-      columns: ['IP Adress', 'Adress ID'],
-      title: 'Added IPs',
-      noData: 'No added IPs',
-      refresh: Number(32000),
-      recordsPerPage: 10,
-      id: 'ip_cidr',
-      search: {hide:true},
-      catalogueClass: 'catalogue-ligth',
-      source: '/data/' + datamanager.data.activeTenant.id
-            + '/volumes/detail',
-      onMount: function(){},
-      actions: [
-        {
-            label: 'Remove',
-            name: 'Remove',
-            onClick: function (props, state) {
-                ReactDOM.render(<CustomModal {...modalParams} />,
-                document.getElementById('temp-volume-create-modal'));
-            },
-            onDisabled: function () {}
-        }
-      ]
+
+  disabledCreatePool: function(){
+    var disabled = false;
+    var name = this.state.pool.name;
+
+    if(this.state.status == 'editing'){
+      disabled = true;
     }
+
+    if(name.replace(/ /g, '') == ''){
+        disabled = true;
+    }
+    return disabled;
+  },
+
+  disabledForm:function(){
+    var disabled = false;
+
+    if(this.state.status == 'editing'){
+      disabled = true;
+    }
+    return disabled;
+  },
+
+  disabledRemoveIPButton: function(){
+    var shouldDisabled = false;
+    if(this.state.selectStatus == 'none'){
+      shouldDisabled = true;
+    }else{
+      if(this.state.selectStatus != 'all'){
+        if(this.state.selectedRows.length == 0){
+          shouldDisabled = true;
+        }
+      }
+    }
+
+    return shouldDisabled;
+  },
+
+  removeSubnet: function(subnet){
+    console.log('Removing subnet', subnet);
+  },
+
+  removeIps: function(){
+
+    var ipsToRemove = [];
+
+    if(this.state.selectStatus == 'all'){//remove all
+      ipsToRemove = this.state.ips;
+    }else{
+      ipsToRemove = this.state.selectedRows;
+    }
+    console.log('Removing IPs', ipsToRemove);
+  },
+
+  isChecked: function (row) {
+
+    if(this.state.selectStatus == 'all'){
+      return true;
+    }else{
+      if(this.state.selectStatus == 'none'){
+        return false;
+      }else{
+        var entry = this.state.selectedRows.find(function (element) {
+            return element['id'] == row['id'];
+        });
+        return entry;
+      }
+    }
+  },
+
+  selectAll: function () {
+
+    if(this.state.selectStatus == 'all'){
+      this.setState({
+        'selectStatus': 'none'
+      });
+    }else{
+      this.setState({
+        'selectStatus': 'all'
+      });
+    }
+  },
+
+  selectRow: function (selectedRow) {
+      var key = 'id';
+      var newSelected = [];
+
+      //first element
+      if(this.state.selectedRows.length == 0){
+          newSelected.push(selectedRow);
+      }else{
+          var indexRow = this.state.selectedRows.findIndex(function (row) {
+              return row[key] == selectedRow[key];
+          });
+
+          this.state.selectedRows.forEach(function (element, index) {
+              //If is the same, not add it.
+              if (selectedRow[key] != element[key]) {
+                  newSelected.push(element);
+              }
+          });
+
+          //If not exist, add it.
+          if(indexRow < 0) {
+              newSelected.push(selectedRow);
+          }
+      }
+
+      this.setState({
+        'selectedRows': newSelected,
+        'selectStatus': null
+      });
+  },
+
+  getSubnetTable: function(){
+
+    var subnets = this.state.subnets.map((subnet, i) => {
+            return(
+              <tr key={i}>
+                <td> {subnet.id} </td>
+                <td>
+                  <Button
+                    onClick={this.removeSubnet.bind(null,subnet)}>
+                    Remove
+                  </Button>
+                </td>
+              </tr>
+            );
+    });
+
+    return (
+      <div className="catalogue-ligth">
+        <h2>
+          Added Subnets
+        </h2>
+
+        <Table responsive>
+          <thead>
+            <tr>
+              <th>Subnet ID</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {subnets}
+          </tbody>
+        </Table>
+      </div>
+    )
+  },
+
+  getIpTable: function(){
+
+    var ips = this.state.ips.map((ip, i) => {
+        return(
+              <tr key={i}>
+                <td>
+                <Input
+                  type="checkbox"
+                  checked={this.isChecked(ip)}
+                  onClick={this.selectRow.bind(null, ip)}
+                  />
+                </td>
+                <td>
+                  {ip.id}
+                </td>
+              </tr>
+            );
+    });
+
+    return (
+      <div className="catalogue-ligth">
+        <h2>
+          Added IPs
+          <Button
+            onClick={this.removeIps}
+            disabled={this.disabledRemoveIPButton()}>
+            Remove
+          </Button>
+        </h2>
+
+        <Table responsive>
+          <thead>
+            <tr>
+              <th>
+              <Input
+                type="checkbox"
+                checked={this.state.selectStatus == 'all'}
+                onClick={this.selectAll}
+                />
+              </th>
+              <th>IP Adress</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ips}
+          </tbody>
+        </Table>
+      </div>
+    )
   },
 
   renderForm: function(){
-
-    var buttonMinus = <Button bsStyle="primary"
-      onClick={this.minus} >-</Button>;
-    var buttonPlus  = <Button bsStyle="primary"
-      onClick={this.plus} >+</Button>;
+    var ips = this.state.pool.ips.map((ip, i) => {
+        return(
+          <div key={i}>
+            <label> {ip.ip || ip} </label>
+          </div>
+        );
+    });
 
     return (
       <div>
 
         <Input label="Pool Name"
           placeholder="Enter Pool Name"
-          name="pool_name"
-          value={this.state.data.name}
+          name="name"
+          value={this.state.pool.name}
           onChange={this.handleChange}
+          disabled={this.disabledForm()}
           type="text"/>
 
         <div className="form-group">
-          <div >Add Availables Subnets</div>
-          <div className="help-form">*Only one subnet can be added at a time</div>
-          <Row className="show-grid">
-            <Col md={3}>
-              <Button bsStyle="primary"  onClick={this.addSubnet}>
-                Add
-              </Button>
-            </Col>
-          </Row>
+          <label>
+            Add Available Subnet
+          </label>
+          <InputElement
+            name="subnet"
+            mask="999.999.999.999"
+            placeholder='###.###.##.#'
+            value={this.state.pool.subnet}
+            onChange={this.handleChange}
+            disabled={this.disabledForm()}
+            className="form-control"
+            type="text"/>
         </div>
 
         <div className="form-group">
-          <label>Add Availables IPs</label>
           <Row className="show-grid">
-            <Col md={9}>
-              <Input
-                placeholder="0"
-                value={this.state.data.number_ips}
-                onChange={this.handleChange}
-                type="number"
-                name="number_ips"
-                buttonBefore={buttonMinus}
-                buttonAfter={buttonPlus}/>
+            <Col md={12}>
+              <label className="add-margin-top">
+                Add a new IP
+              </label>
+              <hr className="remove-margin-top"/>
+              <label className="text-danger">
+                {this.state.errorMessageIP}
+              </label>
             </Col>
-            <Col md={3}>
-              <Button bsStyle="primary" onClick={this.addIP}>
-                Add
+          </Row>
+          <Row className="show-grid">
+            <Col md={4}>
+              <label className="add-mini-margin-top">
+                {this.state.pool.preSubnet}
+              </label>
+            </Col>
+            <Col md={4}>
+              <InputElement
+                name="ip"
+                value={this.state.pool.ip}
+                onChange={this.handleChange}
+                disabled={this.disabledForm()}
+                className="form-control"
+                type="text"/>
+            </Col>
+            <Col md={2}>
+              <Button bsStyle="primary"
+                onClick={this.addIP}
+                disabled={this.disabledAddIPButton()}>
+                Add IP
               </Button>
+            </Col>
+          </Row>
+
+          <Row className="show-grid">
+            <Col md={12}>
+              <label className="add-margin-top">
+                IPs
+              </label>
+            </Col>
+            <Col md={12}>
+              {ips}
             </Col>
           </Row>
         </div>
@@ -243,34 +504,52 @@ getSubnetTableConfiguration: function(){
 
   renderResumePanel: function(){
 
-    return (
-      <div>
-        <div className="frm-panel-heading frm-panel-heading-dotted ">
-          {this.state.data.pool_name}
-        </div>
-        <div className="panel frm-panel-dotted">
-          <div className="panel-body">
-            <Catalogue {...this.getSubnetTableConfiguration()}/>
-            <Catalogue {...this.getIpTableConfiguration()}/>
+    if(this.state.status == 'editing'){
+
+      return (
+        <div>
+          <div className="frm-panel-heading frm-panel-heading-dotted ">
+            {this.state.pool.name }
+          </div>
+          <div className="panel frm-panel-dotted">
+            <div className="panel-body">
+              {this.getSubnetTable()}
+              {this.getIpTable()}
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    }
   },
 
+
   render: function () {
+    let alert = '';
+    if (this.state.generalError != '') {
+      alert = (
+        <Alert bsStyle="danger" onDismiss={this.handleAlertDismiss}>
+          <h4>We could not create the pool!</h4>
+          <p>There seems to be a problem with the pool you are
+          trying to create, please verify your information.</p>
+        </Alert>);
+    }
+
     return (
       <form>
         <Grid>
           <Row className="show-grid">
+            {alert}
             <Col md={4}>
               {this.renderForm()}
+              <Button
+                onClick={this.addPool}
+                disabled={this.disabledCreatePool()}
+                className="button-form">
+                Create Pool
+              </Button>
             </Col>
             <Col md={5} xsOffset={2}>
               {this.renderResumePanel()}
-              <Button type="submit">
-                Create Pool
-              </Button>
             </Col>
           </Row>
         </Grid>

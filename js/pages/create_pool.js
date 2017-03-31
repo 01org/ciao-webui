@@ -13,40 +13,11 @@ $('document').ready(function () {
   //Set active tenant
   var activeTenant = datamanager.data.activeTenant;
 
-
   /* Start create IP Pool Form */
-
   var keyForm = 'create-ip-pool';
 
-  //Get subnets
-
-  $.get({url:"/data/cncis"})
-    .done(function (data) {
-
-      var subnets = [];
-
-      data.cncis.forEach(function(cnci){
-        if(cnci.subnets){
-          cnci.subnets.forEach(function(subnet){
-            subnets.push(subnet)
-          })
-        }
-      })
-
-      datamanager.setDataSource(keyForm, {
-        subnets:subnets
-      });
-
-    });
-
   datamanager.onDataSourceSet(keyForm, function (sourceData) {
-    //sourceData.source = "/data/" + activeTenant.id;
-
-   // var refresh = (datamanager.data.REFRESH | 3000);
-
-    //sourceData.refresh = Number(refresh);
     sourceData.dataKey = keyForm;
-
 
     ReactDOM.render(
     <AddPool {...sourceData}/>,

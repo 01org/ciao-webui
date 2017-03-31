@@ -36,6 +36,8 @@
     "react-bootstrap": "^v0.28.3",
     "react-dom": "^0.14.8",
     "react-faux-dom": "https://github.com/Olical/react-faux-dom#v2.4.0",
+    "react-input-mask": "^0.7.9",
+    "react-maskedinput": "^3.3.4",
     "serve-favicon": "https://github.com/expressjs/serve-favicon#v2.3.0"
   },
   "devDependencies": {

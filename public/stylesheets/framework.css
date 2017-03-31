@@ -723,15 +723,19 @@ div .alert-danger {
 }
 
 /*Pools*/
-framework.css
 .frm-panel-heading-dotted {
     border: 2px dotted #404040;
     border-bottom-color: transparent;
     padding-left: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: bolder;
+    font-size: 20px;
+}
+
+.button-form{
+  float: right;
+  margin-bottom: 20px;
 }
 .frm-panel-dotted {
     border-left: 2px dotted #404040;

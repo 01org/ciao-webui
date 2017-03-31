@@ -85,6 +85,21 @@ $('document').ready(function () {
     };
     getFlavors(0);
 
+    var getImages = function (attempts) {
+        $.get({
+            url: "/data/images",
+            timeout: 5000 }).done(function (data) {
+            if (data) {
+                datamanager.data.images = data.images;
+            }
+        }.bind(this)).fail(function (err) {
+            if (attempts < 3) getImages(attempts + 1);else {
+                datamanager.data.images = {};
+            }
+        });
+    };
+    getImages(0);
+
     //create instances host
     var keyInstanceHost = 'instances-host';
     datamanager.onDataSourceSet(keyInstanceHost, function (sourceData) {
@@ -176,6 +191,33 @@ $('document').ready(function () {
             var node = document.createElement("div");
             node.setAttribute('id', "temp-volume-create-modal");
             if (!document.getElementById(node.id)) document.body.appendChild(node);
+            var imageList = [];
+            if (window.datamanager.data.flavors != undefined) {
+                imageList = window.datamanager.data.images.map(img => {
+                    return React.createElement(
+                        'option',
+                        {
+                            value: img.id },
+                        img.name
+                    );
+                });
+                imageList.push(React.createElement(
+                    'option',
+                    { value: null },
+                    '--none--'
+                ));
+                if (modalCreateFields.filter(f => f.id == 'volume_image') == 0) modalCreateFields.push({
+                    id: 'volume_image',
+                    field: 'select',
+                    placeholder: "",
+                    options: imageList,
+                    name: 'imageRef',
+                    label: 'Image UUID(Bootable only)',
+                    validate: {
+                        required: false
+                    }
+                });
+            }
             var modalParams = {
                 title: 'Create a Volume',
                 type: 'form',
@@ -198,10 +240,12 @@ $('document').ready(function () {
             if (!document.getElementById("temp-volume-modal")) document.body.appendChild(node);
             //get volume list from datamanager available sources
             var volumeSource = datamanager.sources[volumeComponent].data;
-            var volumeList = volumeSource ? volumeSource.map(i => {
-                return { value: i.volume_id, label: i.name };
-            }) : [];
-
+            var volumeList = [];
+            if (volumeSource != undefined) {
+                volumeList = volumeSource.map(function (i, n) {
+                    return { value: i.volume_id, label: i.name };
+                });
+            }
             // TODO: check text format of options, could be more legible
             // Create modal params for deletion
             // if 1 or more volume is selected, just confirm

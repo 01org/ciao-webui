@@ -395,7 +395,6 @@ $('document').ready(function () {
 
     // Ends block storage volume table
 
-
     // create group overview
     datamanager.onDataSourceSet('group-overview', function (sourceData) {
         var refresh = datamanager.data.REFRESH | 3000;
