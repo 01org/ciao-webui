@@ -13,6 +13,7 @@
     "build-network": "browserify build/pages/tenant_network.js -o build/javascripts/bundle_tenant_network.js",
     "build-machine": "browserify build/pages/machine.js -o build/javascripts/bundle_tenant_machine.js",
     "build-admin": "browserify build/pages/admin.js -o build/javascripts/bundle_admin.js",
+    "build-pool": "browserify build/pages/create_pool.js -o build/javascripts/bundle_create_pool.js",
     "build-forbidden": "browserify build/pages/forbidden.js -o build/javascripts/bundle_forbidden.js",
     "build-notice": "browserify build/pages/under_construction.js -o build/javascripts/bundle_under_construction.js",
     "build-detailby-tenant": "browserify build/pages/tenant_detail.js -o build/javascripts/bundle_tenant_detail.js"

@@ -268,4 +268,31 @@ router.get('/tenantDetail/:name/usage', function (req, res, next) {
 });
 
 
+var createPoolConfig = {
+    title: 'Create New IP Pool',
+    page: 'pages/create_pool.ejs',
+    scripts: [
+        '/javascripts/bundle_create_pool.js'
+    ],
+    data: {
+        title: 'Create New IP Pool',
+        section: 'IP Pool'
+    }
+};
+
+router.get('/create/pool', function (req, res, next) {
+
+    createPoolConfig.data.username = req.session.username;
+    createPoolConfig.data.tenants = req.session.tenants;
+    createPoolConfig.data.activeTenant = req.session.activeTenant;
+    createPoolConfig.data.idNetwork =  req.params.id;
+    createPoolConfig.data.navbar = {
+        username: req.session.username,
+        tenants: req.session.tenants,
+        logoutUrl: "/authenticate/logout"
+    };
+    res.render(process.env.NODE_ENV+'_template', createPoolConfig);
+});
+
+
 module.exports = router;

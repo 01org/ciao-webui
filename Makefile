@@ -70,6 +70,7 @@ install-dev:
 	-npm run build-forbidden
 	-npm run build-tenant-detail
 	-npm run build-detailby-tenant
+	-npm run build-pool
 	-mkdir -p public/javascripts/library
 	-mkdir -p public/stylesheets
 	-cp views/default_template.ejs views/$(file)
