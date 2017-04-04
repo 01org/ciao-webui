@@ -737,6 +737,11 @@ div .alert-danger {
   float: right;
   margin-bottom: 20px;
 }
+
+.notation-slash{
+  font-size: 20px;
+}
+
 .frm-panel-dotted {
     border-left: 2px dotted #404040;
     border-right: 2px dotted #404040;
@@ -783,6 +788,7 @@ div .alert-danger {
 .catalogue-ligth input[type=checkbox]{
     margin: 0px;
     margin-top: -7px;
+    margin-left: -5px;
 }
 
 .help-form{

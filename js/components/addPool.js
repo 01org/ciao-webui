@@ -11,7 +11,6 @@ var Grid = ReactBootstrap.Grid,
    Alert = ReactBootstrap.Alert;
 
 var InputElement = require('react-input-mask')
-
 var $ = require('jquery');
 
 var addPool = React.createClass({
@@ -29,17 +28,20 @@ var addPool = React.createClass({
       status:'creating', //Current state (creating/editing)
       generalError:'',//Error while creating a pool,
       createdPool:{},//Pool that has been created
-      subnets:[{'id':'192.168.1.1'}],
-      ips:[{'id':'192.168.1.3'}, {'id':'192.168.1.4'}, {'id':'192.168.1.5'}],
+      subnets:[],
+      ips:[],
       selectedRows:[], //ips selected
       // <all> All ips are selecte, <none> none ip is selected
       selectStatus:null,
       errorMessageIP:'',//error message when adding an ip
       validIP:true,//flag to determine if a ip is valid
+      errorMessageSubnet:'',//error message when adding subnet
+      validSubnet:true,//flag to determine if subnet is valid
       pool:{ //Pool to create
         name:'',
         subnet:'',
         preSubnet:'###.##.#.',
+        notation:'24',
         ip:'',
         ips:[],
         number_ips:1
@@ -47,41 +49,162 @@ var addPool = React.createClass({
     };
   },
 
-  handleChange: function(event) {
-    const target = event.target;
-    const value = target.value;
-    const name = target.name;
+/*Get options*/
 
-    var data = this.state.pool;
-    data[target.name] = value;
-
-    if(target.name == 'subnet'){
-      if(value != '___.___.___.___'){//subnet is not empty
-        var subnetArray = value.split('.');
-        var tmpSubnet = '';
-
-        subnetArray.forEach(function(element, index){
-          if(index < 3){
-            tmpSubnet = tmpSubnet + element + '.';
-          }
-        })
-        data['preSubnet'] = tmpSubnet.replace(/_/g, '');
-      }
-    }
-
-    if(target.name == 'ip'){//validate is a correct ip
-      this.validateIP(value)
-    }
-
-    this.setState({
-      'pool': data
+  //Receive a list of pool and a name
+  //Retrieve the pool filtering by name
+  findPool: function(pools, name){
+    return pools.find(function (pool) {
+        return pool['name'] == name;
     });
   },
 
+  //Search pool in backend
+  getPool: function(pool){
+
+    $.get({url:"/data/pools/" + pool.id}) //Get all th infor of the pool
+      .done(function (pool) {
+        this.setState({
+          'status':'editing',
+          'createdPool': pool,
+          ips:(pool.ips)?pool.ips:[],
+          subnets:(pool.subnets)?pool.subnets:[],
+          'generalError':''
+        })
+      }.bind(this))
+      .fail(function (err) {
+        console.log('error', err);
+        this.setState({
+          'generalError':err
+        })
+      })
+  },
+
+  /*Add options*/
+  addPool: function () {
+
+    var poolToCreate = {};
+    poolToCreate = this.state.pool;
+    var ip = poolToCreate.ips[0];
+    //poolToCreate.ips.shift();
+    poolToCreate.ips = poolToCreate.ips.map(function(ip){
+        return {'ip':ip}
+    })
+
+    //Create subnet
+    var subnet = poolToCreate.subnet.replace(/_/g, '');
+    if(poolToCreate.notation.replace(/ /g, '') != ''){
+      subnet = subnet +'/' + this.state.pool.notation;
+    }
+
+    var body = {
+          "name": poolToCreate.name,
+          "Subent": subnet,
+          "ips": JSON.stringify( poolToCreate.ips ),
+          "ip":ip
+    };
+
+    //TODO: async
+    $.post({
+        url:"/data/pools",
+        data:body
+    })
+    .done(function (pool) {
+
+      if(pool.error == '204'){//success
+        $.get({url:"/data/pools/"}) //Obtain all pools
+        .done(function (pools) {
+          //search and set (just created) pool
+          var pool = this.findPool(pools.pools, this.state.pool.name);
+          this.getPool(pool);
+
+        }.bind(this))
+        .fail(function (err) {
+          console.log('error', err);
+          this.setState({
+            'generalError':err
+          })
+        })
+      }else{
+        this.setState({
+          'generalError':'The named pool "'+ this.state.pool.name
+          +'" could not be created. Please verify your information'
+        })
+      }
+    }.bind(this))
+    .fail(function (err) {
+      console.log('err', err);
+      //Show message error
+    });
+},
+
+/*Remove options*/
+
+  removeSubnet: function(subnet){
+
+    $.ajax({
+      url: "/data/pools/"+this.state.createdPool.id+"/subnets/"+subnet.id,
+      type: "DELETE",
+      dataType: "application/json"
+    })
+    .done(function(response){
+      if(response.error == '204'){//success
+        //Get updated Pool
+        this.getPool(pool);
+      }
+    }.bind(this))
+    .fail(function(){
+      this.getPool(pool);
+    }.bind(this))
+  },
+
+ /* Remove ips from pool
+  * Make a post peticion to remove ip(s)
+  */
+  removeIps: function(){
+
+    var ipsToRemove = [];
+
+    if(this.state.selectStatus == 'all'){//remove all
+      ipsToRemove = this.state.ips;
+    }else{
+      ipsToRemove = this.state.selectedRows;
+    }
+
+    //TODO: async
+    ipsToRemove.forEach(function(ip){
+      $.ajax({
+        url: "/data/external-ips/"+ip.id,
+        type: "DELETE",
+        dataType: "application/json"
+      })
+      .done(function(response){
+        $.ajax({
+          url: "/data/pools/"+this.state.createdPool.id+'/external-ips/'+ip.id,
+          type: "DELETE",
+          dataType: "application/json"
+        })
+        .done(function(response){
+          if(response.error == '204'){//success
+            //Get updated Pool
+            this.getPool(pool);
+          }
+        }.bind(this))
+        .fail(function(response){
+          this.getPool(pool);
+        }.bind(this))
+
+      }.bind(this))
+
+
+    }.bind(this))
+
+  },
+
+/*Form functions*/
+
   /*
   * Validate IP is valid
-  * IP is not equal an exsting ip
-  * IP is not equal to the subnet
   * IP is not bigger than 255
   * IP is not zero
   */
@@ -111,6 +234,21 @@ var addPool = React.createClass({
 
   },
 
+  validateSubnet(subnet){
+    var subnet = subnet.replace(/_/g, '');
+    if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(subnet)) {
+      this.setState({
+        'errorMessageSubnet': '',
+        validSubnet:true
+      });
+    } else{
+      this.setState({
+        'errorMessageSubnet': 'This is not a valid ip',
+        validSubnet:false
+      });
+    }
+  },
+
   //Add new ip
   addIP: function(){
     var actualPool = this.state.pool;
@@ -123,95 +261,50 @@ var addPool = React.createClass({
     });
   },
 
-  //Receive a list of pool and a name
-  //Retrieve the pool filtering by name
-  getPool: function(pools, name){
-    return pools.find(function (pool) {
-        return pool['name'] == name;
-    });
-  },
+  handleChange: function(event) {
+    const target = event.target;
+    const value = target.value;
+    const name = target.name;
 
-  addPool: function () {
+    var data = this.state.pool;
+    data[target.name] = value;
 
-    var poolToCreate = this.state.pool;
-    var ip = poolToCreate.ips[0];
-    //poolToCreate.ips.shift();
-    poolToCreate.ips = poolToCreate.ips.map(function(ip){
-        return {'ip':ip}
-    })
+    if(target.name == 'subnet'){
+      if(value != '___.___.___.___'){//subnet is not empty
+        var subnetArray = value.split('.');
+        var tmpSubnet = '';
 
-    var body = {
-          "name": poolToCreate.name,
-          "Subent": poolToCreate.subnet.replace(/_/g, ''),
-          "ips": JSON.stringify( poolToCreate.ips ),
-          "ip":ip
-    };
-
-    console.log('body', body);
-    //TODO: Apply waterfall
-    $.post({
-        url:"/data/pools",
-        data:body
-    })
-    .done(function (pool) {
-
-      if(pool.error == '204'){//success
-        $.get({url:"/data/pools/"}) //Obtain all pools
-        .done(function (pools) {
-          //search and set (just created) pool
-          var pool = this.getPool(pools.pools, this.state.pool.name);
-
-          $.get({url:"/data/pools/" + pool.id}) //Get all th infor of the pool
-            .done(function (pool) {
-
-              console.log('pool', pool);
-
-              this.setState({
-                'status':'editing',
-                'createdPool': pool,
-                ips:pool.ips,
-                subnets:pool.ips,
-                'generalError':''
-              })
-
-            }.bind(this))
-            .fail(function (err) {
-              console.log('error', err);
-              this.setState({
-                'generalError':err
-              })
-            })
-
-        }.bind(this))
-        .fail(function (err) {
-          console.log('error', err);
-          this.setState({
-            'generalError':err
-          })
+        subnetArray.forEach(function(element, index){
+          if(index < 3){
+            tmpSubnet = tmpSubnet + element + '.';
+          }
         })
-      }else{
-        this.setState({
-          'generalError':'The named pool "'+ this.state.pool.name
-          +'" could not be created. Please verify your information'
-        })
+        data['preSubnet'] = tmpSubnet.replace(/_/g, '');
       }
+    }
 
+    if(target.name == 'ip'){//validate is a correct ip
+      this.validateIP(value)
+    }
 
-    }.bind(this))
-    .fail(function (err) {
-      console.log('err', err);
-      //Show message error
+    if(target.name == 'subnet'){//validate is a correct ip
+      this.validateSubnet(value)
+    }
+
+    this.setState({
+      'pool': data
     });
   },
 
   disabledAddIPButton: function(){
-    if(this.state.pool.ip != '' && this.state.validIP){
+    if(this.state.pool.ip != ''
+      && this.state.validIP
+      && this.state.validSubnet){
       return false;
     }else{
       return true;
     }
   },
-
 
   disabledCreatePool: function(){
     var disabled = false;
@@ -251,21 +344,7 @@ var addPool = React.createClass({
     return shouldDisabled;
   },
 
-  removeSubnet: function(subnet){
-    console.log('Removing subnet', subnet);
-  },
-
-  removeIps: function(){
-
-    var ipsToRemove = [];
-
-    if(this.state.selectStatus == 'all'){//remove all
-      ipsToRemove = this.state.ips;
-    }else{
-      ipsToRemove = this.state.selectedRows;
-    }
-    console.log('Removing IPs', ipsToRemove);
-  },
+/*Table functions*/
 
   isChecked: function (row) {
 
@@ -297,36 +376,37 @@ var addPool = React.createClass({
   },
 
   selectRow: function (selectedRow) {
-      var key = 'id';
-      var newSelected = [];
+    var key = 'id';
+    var newSelected = [];
 
-      //first element
-      if(this.state.selectedRows.length == 0){
-          newSelected.push(selectedRow);
-      }else{
-          var indexRow = this.state.selectedRows.findIndex(function (row) {
-              return row[key] == selectedRow[key];
-          });
+    //first element
+    if(this.state.selectedRows.length == 0){
+        newSelected.push(selectedRow);
+    }else{
+        var indexRow = this.state.selectedRows.findIndex(function (row) {
+            return row[key] == selectedRow[key];
+        });
 
-          this.state.selectedRows.forEach(function (element, index) {
-              //If is the same, not add it.
-              if (selectedRow[key] != element[key]) {
-                  newSelected.push(element);
-              }
-          });
+        this.state.selectedRows.forEach(function (element, index) {
+            //If is the same, not add it.
+            if (selectedRow[key] != element[key]) {
+                newSelected.push(element);
+            }
+        });
 
-          //If not exist, add it.
-          if(indexRow < 0) {
-              newSelected.push(selectedRow);
-          }
-      }
+        //If not exist, add it.
+        if(indexRow < 0) {
+            newSelected.push(selectedRow);
+        }
+    }
 
-      this.setState({
-        'selectedRows': newSelected,
-        'selectStatus': null
-      });
-  },
+    this.setState({
+      'selectedRows': newSelected,
+      'selectStatus': null
+    });
+},
 
+/*Render*/
   getSubnetTable: function(){
 
     var subnets = this.state.subnets.map((subnet, i) => {
@@ -379,6 +459,9 @@ var addPool = React.createClass({
                 <td>
                   {ip.id}
                 </td>
+                <td>
+                  {ip.address}
+                </td>
               </tr>
             );
     });
@@ -404,6 +487,7 @@ var addPool = React.createClass({
                 onClick={this.selectAll}
                 />
               </th>
+              <th>IP ID</th>
               <th>IP Adress</th>
             </tr>
           </thead>
@@ -418,9 +502,11 @@ var addPool = React.createClass({
   renderForm: function(){
     var ips = this.state.pool.ips.map((ip, i) => {
         return(
-          <div key={i}>
-            <label> {ip.ip || ip} </label>
-          </div>
+          <tr key={i}>
+            <td>
+              <label> {ip.ip || ip} </label>
+            </td>
+          </tr>
         );
     });
 
@@ -439,15 +525,36 @@ var addPool = React.createClass({
           <label>
             Add Available Subnet
           </label>
-          <InputElement
-            name="subnet"
-            mask="999.999.999.999"
-            placeholder='###.###.##.#'
-            value={this.state.pool.subnet}
-            onChange={this.handleChange}
-            disabled={this.disabledForm()}
-            className="form-control"
-            type="text"/>
+          <Row className="show-grid">
+            <label className="text-danger">
+              {this.state.errorMessageSubnet}
+            </label>
+            <Col md={7}>
+              <InputElement
+                name="subnet"
+                mask="999.999.999.999"
+                placeholder='###.###.##.#'
+                value={this.state.pool.subnet}
+                onChange={this.handleChange}
+                disabled={this.disabledForm()}
+                className="form-control"
+                type="text"/>
+            </Col>
+            <Col md={1}>
+              <label className="notation-slash">
+                /
+              </label>
+            </Col>
+            <Col md={3}>
+              <Input
+                name="notation"
+                value={this.state.pool.notation}
+                onChange={this.handleChange}
+                disabled={this.disabledForm()}
+                className="form-control"
+                type="text"/>
+            </Col>
+          </Row>
         </div>
 
         <div className="form-group">
@@ -493,7 +600,11 @@ var addPool = React.createClass({
               </label>
             </Col>
             <Col md={12}>
-              {ips}
+            <Table striped bordered condensed>
+              <tbody>
+                {ips}
+              </tbody>
+            </Table>
             </Col>
           </Row>
         </div>
@@ -521,7 +632,6 @@ var addPool = React.createClass({
       );
     }
   },
-
 
   render: function () {
     let alert = '';

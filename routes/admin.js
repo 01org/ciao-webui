@@ -18,7 +18,7 @@ var config = {
 
 function validatePermissions (req, res, next){
     if(!req.session.isAdmin){ //if is admin, redirect to /admin
-      //  res.redirect('/forbidden');
+      res.redirect('/forbidden');
     }
 
     next();
@@ -58,8 +58,8 @@ var getTenants = function (req, res, next) {
     }
 };
 
-//router.use(sessionHandler.validateSession);
-//router.use(getTenants);
+router.use(sessionHandler.validateSession);
+router.use(getTenants);
 
 /* GET users listing. */
 router.get('/', validatePermissions, function(req, res, next) {

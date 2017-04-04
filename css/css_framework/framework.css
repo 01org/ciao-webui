@@ -779,6 +779,7 @@ framework.css
 .catalogue-ligth input[type=checkbox]{
     margin: 0px;
     margin-top: -7px;
+    margin-left: -5px;
 }
 
 .help-form{
@@ -786,4 +787,8 @@ framework.css
   padding-bottom: 10px;
   font-size: 13px;
   font-style: italic;
+}
+
+.notation-slash{
+  font-size: 20px;
 }
