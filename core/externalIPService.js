@@ -46,7 +46,8 @@ externalIPService.prototype.createPool = function () {
     var tokenManager = this.tokenManager;
     return function (req, res, next) {
         var uri = "/pools";
-
+        // The body may be modified before being sent
+        // it depends of the parameters received
         var pool = req.body.pool? req.body :{
             name:req.body.name,
             Subnet: req.body.Subnet,
@@ -67,11 +68,12 @@ externalIPService.prototype.addExternalIPsTOPool = function () {
     var tokenManager = this.tokenManager;
     return function (req, res, next) {
         var uri = "/pools/"+req.params.pool_id;
-
+        // The body may be modified before being sent
+        // it depends of the parameters received
         var externalIPs = req.body.externalIPs? req.body :{
             pool_id:req.body.pool_id,
-            Subnet: req.body.subnet,
-            ips: req.body.ips,
+            Subnet: req.body.Subnet,
+            ips: JSON.parse(req.body.ips),
             ip: req.body.ip
         };
         return adapter.onSuccess((data) => res.send(data.json))
@@ -89,6 +91,50 @@ externalIPService.prototype.deletePool = function () {
         var uri = "/pools/"+req.params.pool_id;
         return adapter.onSuccess((data) => res.send(data.json))
             .onError((data) => res.send(data))
+            .delete(uri,req.session.token);
+    };
+};
+
+// Delete a subnet in a pool
+// Method: DELETE
+externalIPService.prototype.deleteSubnetById = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        var uri = "/pools/"+req.params.pool_id+"/subnets/"+
+                    req.params.subnet_id;
+        return adapter.onSuccess((data) => {
+            res.send(data.json);
+        }).onError((data) => res.send(data))
+            .delete(uri,req.session.token);
+    };
+};
+
+// Delete a ip from a pool
+// Method: DELETE
+externalIPService.prototype.deleteIpFromPool = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        var uri = "/pools/"+req.params.pool_id+"/external-ips/"+
+                    req.params.ip_id;
+        return adapter.onSuccess((data) => {
+            res.send(data.json);
+        }).onError((data) => res.send(data))
+            .delete(uri,req.session.token);
+    };
+};
+
+// Unmap a mapped ip address across Ciao
+// Method: DELETE
+externalIPService.prototype.deleteMappedIp = function () {
+    var adapter = this.adapter;
+    var tokenManager = this.tokenManager;
+    return function (req, res, next) {
+        var uri = "/external-ips/"+req.params.mapped_id;
+        return adapter.onSuccess((data) => {
+            res.send(data.json);
+        }).onError((data) => res.send(data))
             .delete(uri,req.session.token);
     };
 };
