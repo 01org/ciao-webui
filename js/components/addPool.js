@@ -148,13 +148,10 @@ var addPool = React.createClass({
       dataType: "application/json"
     })
     .done(function(response){
-      if(response.error == '204'){//success
-        //Get updated Pool
-        this.getPool(pool);
-      }
+      this.getPool(this.state.createdPool);
     }.bind(this))
     .fail(function(){
-      this.getPool(pool);
+      this.getPool(this.state.createdPool);
     }.bind(this))
   },
 
@@ -185,13 +182,10 @@ var addPool = React.createClass({
           dataType: "application/json"
         })
         .done(function(response){
-          if(response.error == '204'){//success
-            //Get updated Pool
-            this.getPool(pool);
-          }
+          this.getPool(this.state.createdPool);
         }.bind(this))
         .fail(function(response){
-          this.getPool(pool);
+          this.getPool(this.state.createdPool);
         }.bind(this))
 
       }.bind(this))
