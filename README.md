@@ -72,12 +72,21 @@ The following fields will determine how the Ciao Web UI will beconfigured.
 
 #### Building application
 
-In order to build application the 'install.sh' must be executed. This script will intsall dependencies using the npm package manager and also build minified JS scripts used with browser compatibility.
-Note: this process is only necessary for development as minified scripts and dependencies are already provided by the application.
+In order to build the application a Makefile is provided. Use make 'TARGET' to build Ciao-Webui. When running either 'install' or 'install-dev' targets. Note that if not set, the environment variable 'NODE_ENV' will be set to 'production' by default.
 
-    # install while setting a "development" environment
-    $ ./install.sh development
-    # In this case NODE_ENV will be set to "development"
+###### make install
+Use 'make' or 'make install' in order to build ciao-webui application with latest 'production' ready code.
+
+###### make install-dev
+Use 'make install-dev' to install development dependencies and fully build and update dependencies for the Ciao-Webui project. Use this target for development environments.
+
+###### make uninstall
+Remove Ciao-Webui from the system and cleans build files.
+
+###### make clean
+Clean build generated files from working directory.
+**Note:** Use this target to clean the working directory after runnin 'make install-dev' target.
+
 
 #### Running application:
 
